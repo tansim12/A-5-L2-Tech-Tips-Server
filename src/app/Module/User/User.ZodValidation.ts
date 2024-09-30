@@ -20,8 +20,8 @@ const userCreateValidationSchemaZod = z.object({
       .max(20, "Password must be at most 20 characters long")
       .nonempty("Password is required"),
     phone: z.string().nonempty("Phone number is required"),
+    profilePhoto: z.string().nonempty("Profile Photo is required").optional(),
     isVerified: z.boolean().optional(),
-    
   }),
 });
 const userUpdateValidationSchemaZod = z.object({
@@ -38,6 +38,7 @@ const userUpdateValidationSchemaZod = z.object({
     status: z
       .enum(["active", "block"], { required_error: "Status is required" })
       .optional(),
+    profilePhoto: z.string().nonempty("Profile Photo is required").optional(),
     isDelete: z.boolean().optional(),
     phone: z.string().nonempty("Phone number is required").optional(),
     isVerified: z.boolean().optional(),

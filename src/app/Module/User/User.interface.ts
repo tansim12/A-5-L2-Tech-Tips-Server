@@ -7,8 +7,9 @@ export interface TUser {
   password: string;
   phone: string;
   status?: "active" | "block";
-  passwordChangeAt?:Date
+  passwordChangeAt?: Date;
   isDelete?: boolean;
+  profilePhoto?: string;
   isVerified?: boolean;
 }
 export type TUserRole = keyof typeof USER_ROLE;

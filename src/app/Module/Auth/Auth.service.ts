@@ -45,6 +45,7 @@ const singUpDB = async (payload: Partial<TUser>) => {
       [
         {
           userId: result[0]?._id,
+          profilePhoto: result[0]?.profilePhoto,
         },
       ],
       { session }
@@ -86,7 +87,6 @@ const singUpDB = async (payload: Partial<TUser>) => {
       accessToken,
       refreshToken,
     };
-
   } catch (error) {
     // If any error occurs, rollback the transaction
     await session.abortTransaction();

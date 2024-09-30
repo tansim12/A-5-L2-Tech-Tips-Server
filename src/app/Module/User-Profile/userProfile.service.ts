@@ -28,6 +28,15 @@ const updateUserProfileDB = async (
     throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
   }
 
+  if (payload?.profilePhoto) {
+    await UserModel.findByIdAndUpdate(
+      { _id: userId },
+      {
+        profilePhoto: payload?.profilePhoto,
+      }
+    );
+  }
+
   const result = await UserProfileModel.findOneAndUpdate(
     { userId },
     {
