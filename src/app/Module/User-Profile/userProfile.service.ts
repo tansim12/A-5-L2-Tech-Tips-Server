@@ -4,15 +4,16 @@ import { UserModel } from "../User/User.model";
 import { TUserProfile } from "./userProfile.interface";
 import { USER_STATUS } from "../User/User.const";
 import UserProfileModel from "./userProfile.model";
-
 const updateUserProfileDB = async (
   payload: Partial<TUserProfile>,
   userId: string
 ) => {
-  const user = await UserModel.findById({ _id: userId }).select(
+  const user = await UserModel.findById(userId).select(
     "name email phone isDelete status"
   );
-  const userProfile = await UserProfileModel.findById(userId).select("_id");
+  // Find user profile by the userId field in the UserProfileModel
+  const userProfile = await UserProfileModel.findOne({ userId }).select("_id");
+
   if (!userProfile) {
     throw new AppError(httpStatus.NOT_FOUND, "User Profile Data Not Found !");
   }
@@ -27,7 +28,7 @@ const updateUserProfileDB = async (
     throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
   }
 
-  const result = await UserProfileModel.findByIdAndUpdate(
+  const result = await UserProfileModel.findOneAndUpdate(
     { userId },
     {
       $set: {

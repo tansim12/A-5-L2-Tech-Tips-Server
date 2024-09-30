@@ -1,11 +1,11 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model, } from "mongoose";
 import { TUserProfile } from "./userProfile.interface";
 
 // Define the schema
 const UserProfileSchema = new Schema(
   {
     userId: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
     },
     bio: {
@@ -22,7 +22,7 @@ const UserProfileSchema = new Schema(
     },
     followers: [
       {
-        type: Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "User",
       },
     ],

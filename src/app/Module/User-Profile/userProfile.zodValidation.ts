@@ -6,10 +6,10 @@ const userProfileZodSchema = z.object({
   body: z.object({
     userId: z
       .string()
-      .nonempty("User ID is required")
       .refine((val) => Types.ObjectId.isValid(val), {
-        message: "Invalid ObjectId",
-      }).optional(),
+        message: "Invalid user ID",
+      })
+      .optional(),
     bio: z.string().optional(),
     description: z.string().optional(),
     profilePhoto: z.string().url("Invalid URL").optional(),
@@ -21,7 +21,6 @@ const userProfileZodSchema = z.object({
         })
       )
       .optional(),
-   
   }),
 });
 
