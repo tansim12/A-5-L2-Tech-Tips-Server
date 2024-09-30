@@ -11,7 +11,7 @@ router.put(
   "/",
   authMiddleWare(USER_ROLE.user),
   validationMiddleWare(userProfileZodValidation.userProfileZodSchema),
-  userProfileController.userProfile)
+  userProfileController.updateUserProfile)
 
 
 export const userProfileRoute = router;

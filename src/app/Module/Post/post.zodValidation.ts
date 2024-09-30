@@ -11,9 +11,24 @@ const createPostZodSchema = z.object({
     images: z.array(z.string()).optional(), // Optional array of image URLs
     react: z.array(z.string()).optional(), // Optional array of user IDs who reacted
     comments: z.array(z.string()).optional(), // Optional array of comments
+    isDelete: z.boolean().optional(),
+  }),
+});
+const updatePostZodSchema = z.object({
+  body: z.object({
+    userId: z.string().nonempty("User ID is required").optional(),
+    description: z
+      .string()
+      .nonempty("Description is required")
+      .max(2000, "Description cannot exceed 2000 characters").optional(),
+    images: z.array(z.string()).optional(), // Optional array of image URLs
+    react: z.array(z.string()).optional(), // Optional array of user IDs who reacted
+    comments: z.array(z.string()).optional(), // Optional array of comments
+    isDelete: z.boolean().optional(),
   }),
 });
 
 export const postZodValidation = {
   createPostZodSchema,
+  updatePostZodSchema,
 };

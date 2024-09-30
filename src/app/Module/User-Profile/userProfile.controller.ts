@@ -18,5 +18,5 @@ const updateUserProfile: RequestHandler = async (req, res, next) => {
 };
 
 export const userProfileController = {
-  userProfile: updateUserProfile,
+   updateUserProfile,
 };
