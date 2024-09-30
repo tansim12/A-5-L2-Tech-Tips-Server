@@ -6,8 +6,8 @@ export interface TUser {
   role?: "user" | "admin";
   password: string;
   phone: string;
-  address?: string;
-  image?: string;
+  // address?: string;
+  // image?: string;
   status?: "active" | "block";
   passwordChangeAt?:Date
   isDelete?: boolean;

@@ -37,12 +37,6 @@ const userSchema = new Schema<TUser>(
       type: String,
       required: true,
     },
-    address: {
-      type: String,
-    },
-    image: {
-      type: String,
-    },
     passwordChangeAt: {
       type: Date,
     },
