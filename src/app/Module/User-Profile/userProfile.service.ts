@@ -3,6 +3,7 @@ import AppError from "../../Error-Handle/AppError";
 import { UserModel } from "../User/User.model";
 import { TUserProfile } from "./userProfile.interface";
 import { USER_STATUS } from "../User/User.const";
+import UserProfileModel from "./userProfile.model";
 
 const updateUserProfileDB = async (
   payload: Partial<TUserProfile>,
@@ -11,6 +12,10 @@ const updateUserProfileDB = async (
   const user = await UserModel.findById({ _id: userId }).select(
     "name email phone isDelete status"
   );
+  const userProfile = await UserProfileModel.findById(userId).select("_id");
+  if (!userProfile) {
+    throw new AppError(httpStatus.NOT_FOUND, "User Profile Data Not Found !");
+  }
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "User Not found !");
   }
@@ -22,7 +27,26 @@ const updateUserProfileDB = async (
     throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
   }
 
-  const result = await user
+  const result = await UserProfileModel.findByIdAndUpdate(
+    { userId },
+    {
+      $set: {
+        ...payload,
+      },
+    },
+    {
+      new: true,
+      upsert: true,
+    }
+  );
+
+  if (!result) {
+    throw new AppError(
+      httpStatus.EXPECTATION_FAILED,
+      "User Profile Update Failed"
+    );
+  }
+  return result;
 };
 export const userProfileService = {
   updateUserProfileDB,

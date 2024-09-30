@@ -7,11 +7,9 @@ const UserProfileSchema = new Schema(
     userId: {
       type: Types.ObjectId,
       ref: "User",
-      required: true,
     },
     bio: {
       type: String,
-      required: true,
     },
     description: {
       type: String,
@@ -28,15 +26,11 @@ const UserProfileSchema = new Schema(
         ref: "User",
       },
     ],
-    isVerified: {
-      type: Boolean,
-      default: false, // Default value if not provided
-    },
   },
   { timestamps: true }
 );
 
 // Create the model
-const UserProfile = model<TUserProfile>("UserProfile", UserProfileSchema);
+const UserProfileModel = model<TUserProfile>("UserProfile", UserProfileSchema);
 
-export default UserProfile;
+export default UserProfileModel;

@@ -3,7 +3,8 @@ import globalErrorHandler from "../src/app/Error-Handle/globalErrorHandle";
 import normalMiddleware from "../src/app/middleware/normalMiddleware";
 import { authRoutes } from "./app/Module/Auth/Auth.route";
 import { paymentRoutes } from "./app/Module/Payment/Payment.route";
-// import { userRoutes } from "./app/Module/User/User.route";
+import { userProfileRoute } from "./app/Module/User-Profile/userProfile.route";
+
 
 const app: Application = express();
 normalMiddleware(app);
@@ -11,12 +12,8 @@ normalMiddleware(app);
 // "/api/";
 
 app.use("/api/auth", authRoutes);
-
+app.use("/api/user-profile", userProfileRoute);
 app.use("/api/payment", paymentRoutes);
-
-
-
-
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Level-2 setup ");

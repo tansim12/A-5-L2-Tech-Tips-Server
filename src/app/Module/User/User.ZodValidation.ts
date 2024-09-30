@@ -20,8 +20,8 @@ const userCreateValidationSchemaZod = z.object({
       .max(20, "Password must be at most 20 characters long")
       .nonempty("Password is required"),
     phone: z.string().nonempty("Phone number is required"),
-    address: z.string().nonempty("Address is required").optional(),
-    image: z.string().nonempty("Image is required").optional(),
+    isVerified: z.boolean().optional(),
+    
   }),
 });
 const userUpdateValidationSchemaZod = z.object({
@@ -40,8 +40,7 @@ const userUpdateValidationSchemaZod = z.object({
       .optional(),
     isDelete: z.boolean().optional(),
     phone: z.string().nonempty("Phone number is required").optional(),
-    address: z.string().nonempty("Address is required").optional(),
-    image: z.string().nonempty("Image is required").optional(),
+    isVerified: z.boolean().optional(),
   }),
 });
 

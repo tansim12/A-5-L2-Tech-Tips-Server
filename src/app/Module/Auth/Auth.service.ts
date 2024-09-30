@@ -11,22 +11,59 @@ import { USER_STATUS } from "../User/User.const";
 import { JwtPayload } from "jsonwebtoken";
 import jwt from "jsonwebtoken";
 import Bcrypt from "bcrypt";
+import UserProfileModel from "../User-Profile/userProfile.model";
+import mongoose from "mongoose";
 
 const singUpDB = async (payload: Partial<TUser>) => {
-  const user = await UserModel.findOne({
-    $or: [{ email: payload?.email }, { phone: payload?.phone }],
-  }).select("email");
-  if (user) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      "This User Already Exists Change Email Or Phone Number"
+  const session = await mongoose.startSession(); // Start a new session for the transaction
+  session.startTransaction(); // Begin the transaction
+
+  try {
+    // Check if the user already exists
+    const user = await UserModel.findOne({
+      $or: [{ email: payload?.email }, { phone: payload?.phone }],
+    })
+      .select("email")
+      .session(session); // Add session to the query
+
+    if (user) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "This User Already Exists. Change Email Or Phone Number"
+      );
+    }
+
+    // Create the new user
+    const result = await UserModel.create([payload], { session }); // Use session in create
+
+    if (!result[0]?._id) {
+      throw new AppError(httpStatus.EXPECTATION_FAILED, "User Creation Failed");
+    }
+
+    // Create the user profile
+    const createUserProfile = await UserProfileModel.create(
+      [
+        {
+          userId: result[0]?._id,
+        },
+      ],
+      { session }
     );
-  }
-  const result = await UserModel.create(payload);
-  if (result) {
+
+    if (!createUserProfile[0]?._id) {
+      throw new AppError(
+        httpStatus.EXPECTATION_FAILED,
+        "User Profile Creation Failed"
+      );
+    }
+
+    // If both user and profile creation succeeded, commit the transaction
+    await session.commitTransaction();
+
+    // Generate JWT tokens
     const jwtPayload = {
-      id: result?._id,
-      role: result?.role as string,
+      id: result[0]?._id,
+      role: result[0]?.role as string,
     };
 
     const accessToken = dynamicTokenGenerate(
@@ -39,13 +76,24 @@ const singUpDB = async (payload: Partial<TUser>) => {
       process.env.SECRET_REFRESH_TOKEN as string,
       process.env.SECRET_REFRESH_TOKEN_TIME as string
     );
+
     if (!accessToken) {
-      throw new AppError(httpStatus.CONFLICT, "Something Went Wrong !!");
+      throw new AppError(httpStatus.CONFLICT, "Something Went Wrong!");
     }
+
+    // Return the tokens
     return {
       accessToken,
       refreshToken,
     };
+
+  } catch (error) {
+    // If any error occurs, rollback the transaction
+    await session.abortTransaction();
+    throw error; // Re-throw the error to be handled by the caller
+  } finally {
+    // End the session
+    session.endSession();
   }
 };
 
