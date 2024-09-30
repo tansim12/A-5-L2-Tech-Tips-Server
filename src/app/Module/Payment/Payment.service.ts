@@ -21,7 +21,7 @@ const paymentDB = async (body: any, userId: string) => {
     throw new AppError(httpStatus.BAD_REQUEST, "User Already Delete !");
   }
 
-  if (user.status === USER_STATUS.block) {
+  if (user?.status === USER_STATUS.block) {
     throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
   }
 
