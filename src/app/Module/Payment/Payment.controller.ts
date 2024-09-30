@@ -17,7 +17,9 @@ const callback: RequestHandler = async (req, res, next) => {
     const result = await paymentService.callbackDB(req.body, req?.query);
     if (result?.success) {
       res.redirect(
-        `${process.env.FRONTEND_URL}payment-success?bookingId=${result?.bookingId}`
+        // `${process.env.FRONTEND_URL}payment-success?bookingId=${result?.bookingId}`
+        //! todo should be dynamic transaction id
+        `${process.env.FRONTEND_URL}payment-success?bookingId=${"transaction id"}`
       );
     }
     if (result?.success === false) {
