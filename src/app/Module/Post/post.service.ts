@@ -87,7 +87,13 @@ const updatePostDB = async (
 };
 
 const publicFindAllPostDB = async (queryParams: Partial<TPost>) => {
-  const queryPost = new QueryBuilder2(PostModel.find(), queryParams)
+  const queryPost = new QueryBuilder2(
+    PostModel.find().populate({
+      path: "userId",
+      select: "name isVerified profilePhoto role",
+    }),
+    queryParams
+  )
     .fields()
     .filter()
     .paginate()
