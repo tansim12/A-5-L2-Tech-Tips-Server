@@ -13,7 +13,7 @@ const ReactSchema = new Schema<TReact>(
 // Define the schema for the Post model
 const PostSchema: Schema<TPost> = new Schema(
   {
-    userId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+    userId: { type: Schema.Types.ObjectId, ref: "User" },
     description: { type: String, required: true },
     category: {
       type: String,

@@ -20,6 +20,11 @@ router.put(
   validationMiddleWare(postZodValidation.updatePostZodSchema),
   postController.updatePost
 );
+router.get(
+  "/my-all-posts",
+  authMiddleWare(USER_ROLE.user, USER_ROLE.admin),
+  postController.myAllPost
+);
 router.get("/", postController.publicFindAllPost);
 
 export const postRoute = router;

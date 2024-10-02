@@ -44,9 +44,25 @@ const publicFindAllPost: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+const myAllPost: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await postService.myAllPostDB(
+      req?.query,
+      req?.user?.id
+    );
+    res
+      .status(200)
+      .send(
+        successResponse(result, httpStatus.OK, "Post Find Successfully Done")
+      );
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const postController = {
   createPost,
   updatePost,
   publicFindAllPost,
+  myAllPost,
 };

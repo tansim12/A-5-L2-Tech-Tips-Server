@@ -9,9 +9,6 @@ import { postSearchableFields } from "./post.const";
 
 const createPostDB = async (payload: Partial<TPost>, userId: string) => {
   const user = await UserModel.findById({ _id: userId }).select("+password");
-  const existDB = await UserModel.findById({ _id: payload?.userId }).select(
-    "+password"
-  );
 
   if (payload?.premium === true && user?.isVerified === false) {
     throw new AppError(
@@ -19,21 +16,18 @@ const createPostDB = async (payload: Partial<TPost>, userId: string) => {
       "Access denied. This post is only for verified users."
     );
   }
-  if (!user || !existDB) {
+  if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "User Not found !");
   }
 
-  if (user?.isDelete || existDB?.isDelete) {
+  if (user?.isDelete) {
     throw new AppError(httpStatus.BAD_REQUEST, "User Already Delete !");
   }
 
-  if (
-    user?.status === USER_STATUS.block ||
-    existDB?.status === USER_STATUS.block
-  ) {
+  if (user?.status === USER_STATUS.block) {
     throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
   }
-  const result = await PostModel.create(payload);
+  const result = await PostModel.create({ ...payload, userId });
   if (!result) {
     throw new AppError(httpStatus.EXPECTATION_FAILED, "Post Create Failed");
   }
@@ -103,9 +97,27 @@ const publicFindAllPostDB = async (queryParams: Partial<TPost>) => {
   const meta = await queryPost.countTotal();
   return { meta, result };
 };
+const myAllPostDB = async (queryParams: Partial<TPost>, userId: string) => {
+  const queryPost = new QueryBuilder2(
+    PostModel.find({ userId }).populate({
+      path: "userId",
+      select: "name isVerified profilePhoto role",
+    }),
+    queryParams
+  )
+    .fields()
+    .filter()
+    .paginate()
+    .search(postSearchableFields)
+    .sort();
+  const result = await queryPost.modelQuery;
+  const meta = await queryPost.countTotal();
+  return { meta, result };
+};
 
 export const postService = {
   createPostDB,
   updatePostDB,
   publicFindAllPostDB,
+  myAllPostDB,
 };

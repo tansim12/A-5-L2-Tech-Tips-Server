@@ -4,7 +4,7 @@ import { postCategoriesArray } from "./post.const";
 // Zod schema for post validation
 const createPostZodSchema = z.object({
   body: z.object({
-    userId: z.string().nonempty("User ID is required"),
+    userId: z.string().nonempty("User ID is required").optional(),
     category: z.enum(postCategoriesArray, {
       errorMap: () => ({ message: "Invalid category" }),
     }),
