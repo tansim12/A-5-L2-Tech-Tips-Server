@@ -80,23 +80,6 @@ const updatePostDB = async (
   return result;
 };
 
-const publicFindAllPostDB = async (queryParams: Partial<TPost>) => {
-  const queryPost = new QueryBuilder2(
-    PostModel.find().populate({
-      path: "userId",
-      select: "name isVerified profilePhoto role",
-    }),
-    queryParams
-  )
-    .fields()
-    .filter()
-    .paginate()
-    .search(postSearchableFields)
-    .sort();
-  const result = await queryPost.modelQuery;
-  const meta = await queryPost.countTotal();
-  return { meta, result };
-};
 const myAllPostDB = async (queryParams: Partial<TPost>, userId: string) => {
   const queryPost = new QueryBuilder2(
     PostModel.find({ userId }).populate({
@@ -115,9 +98,43 @@ const myAllPostDB = async (queryParams: Partial<TPost>, userId: string) => {
   return { meta, result };
 };
 
+// ! public section
+const publicFindAllPostDB = async (queryParams: Partial<TPost>) => {
+  const queryPost = new QueryBuilder2(
+    PostModel.find().populate({
+      path: "userId",
+      select: "name isVerified profilePhoto role",
+    }),
+    queryParams
+  )
+    .fields()
+    .filter()
+    .paginate()
+    .search(postSearchableFields)
+    .sort();
+  const result = await queryPost.modelQuery;
+  const meta = await queryPost.countTotal();
+  return { meta, result };
+};
+const publicFindSinglePostDB = async (postId: string) => {
+  const result = await PostModel.findById({ _id: postId }).populate({
+    path: "userId",
+    select: "name isVerified profilePhoto role",
+  });
+
+  if (!result?._id) {
+    throw new AppError(httpStatus.NOT_FOUND, "Data Not Found");
+  }
+  if (result?.isDelete) {
+    throw new AppError(httpStatus.NOT_FOUND, "Data Already Delete");
+  }
+  return result;
+};
+
 export const postService = {
   createPostDB,
   updatePostDB,
   publicFindAllPostDB,
   myAllPostDB,
+  publicFindSinglePostDB,
 };
