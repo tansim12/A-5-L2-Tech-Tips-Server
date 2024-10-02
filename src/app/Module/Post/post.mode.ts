@@ -21,6 +21,7 @@ const PostSchema: Schema<TPost> = new Schema(
       required: true,
     },
     isDelete: { type: Boolean, default: false },
+    premium: { type: Boolean, default: false },
     images: [{ type: String }],
     react: [ReactSchema], // Referencing users who reacted
     comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }], // Referencing comments

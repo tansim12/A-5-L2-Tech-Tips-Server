@@ -22,6 +22,7 @@ export type TPost = {
   userId: Types.ObjectId;
   category: TPostCategory;
   description: string;
+  premium: boolean;
   images?: string[];
   react?: TReact[];
   isDelete?: boolean;

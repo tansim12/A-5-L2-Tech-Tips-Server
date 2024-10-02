@@ -20,5 +20,6 @@ router.put(
   validationMiddleWare(postZodValidation.updatePostZodSchema),
   postController.updatePost
 );
+router.get("/", postController.publicFindAllPost);
 
 export const postRoute = router;

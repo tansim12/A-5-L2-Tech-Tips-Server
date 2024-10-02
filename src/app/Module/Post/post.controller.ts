@@ -18,7 +18,11 @@ const createPost: RequestHandler = async (req, res, next) => {
 };
 const updatePost: RequestHandler = async (req, res, next) => {
   try {
-    const result = await postService.updatePostDB(req?.body, req?.user?.id,req?.params?.postId);
+    const result = await postService.updatePostDB(
+      req?.body,
+      req?.user?.id,
+      req?.params?.postId
+    );
     res
       .status(200)
       .send(
@@ -28,8 +32,21 @@ const updatePost: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+const publicFindAllPost: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await postService.publicFindAllPostDB(req?.query);
+    res
+      .status(200)
+      .send(
+        successResponse(result, httpStatus.OK, "Post Find Successfully Done")
+      );
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const postController = {
   createPost,
   updatePost,
+  publicFindAllPost,
 };
