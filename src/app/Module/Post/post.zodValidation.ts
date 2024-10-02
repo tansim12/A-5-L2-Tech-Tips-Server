@@ -5,6 +5,9 @@ import { postCategoriesArray } from "./post.const";
 const createPostZodSchema = z.object({
   body: z.object({
     userId: z.string().nonempty("User ID is required"),
+    category: z.enum(postCategoriesArray, {
+      errorMap: () => ({ message: "Invalid category" }),
+    }),
     description: z
       .string()
       .nonempty("Description is required")
@@ -18,7 +21,6 @@ const createPostZodSchema = z.object({
 const updatePostZodSchema = z.object({
   body: z.object({
     userId: z.string().nonempty("User ID is required").optional(),
-
     category: z.enum(postCategoriesArray, {
       errorMap: () => ({ message: "Invalid category" }),
     }),
