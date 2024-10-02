@@ -1,5 +1,6 @@
 import { model, Schema } from "mongoose";
 import { TPost, TReact } from "./post.interface";
+import { postCategoriesArray } from "./post.const";
 
 const ReactSchema = new Schema<TReact>(
   {
@@ -14,6 +15,11 @@ const PostSchema: Schema<TPost> = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     description: { type: String, required: true },
+    category: {
+      type: String,
+      enum: postCategoriesArray, // Restrict category to predefined values
+      required: true,
+    },
     isDelete: { type: Boolean, default: false },
     images: [{ type: String }],
     react: [ReactSchema], // Referencing users who reacted
