@@ -5,6 +5,7 @@ import { authRoutes } from "./app/Module/Auth/Auth.route";
 import { paymentRoutes } from "./app/Module/Payment/Payment.route";
 import { userProfileRoute } from "./app/Module/User-Profile/userProfile.route";
 import { postRoute } from "./app/Module/Post/post.route";
+import { commentsRouter } from "./app/Module/Comment/comment.route";
 
 const app: Application = express();
 normalMiddleware(app);
@@ -14,6 +15,7 @@ normalMiddleware(app);
 app.use("/api/auth", authRoutes);
 app.use("/api/user-profile", userProfileRoute);
 app.use("/api/post", postRoute);
+app.use("/api/comments", commentsRouter);
 app.use("/api/payment", paymentRoutes);
 
 app.get("/", (req: Request, res: Response) => {

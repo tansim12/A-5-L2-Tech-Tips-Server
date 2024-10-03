@@ -6,7 +6,7 @@ import { USER_ROLE, USER_STATUS } from "../User/User.const";
 import PostModel from "./post.mode";
 import QueryBuilder2 from "../../Builder/QueryBuilder2";
 import { postSearchableFields } from "./post.const";
-import CommentModel from "../Comment/comment.mode";
+
 
 const createPostDB = async (payload: Partial<TPost>, userId: string) => {
   const user = await UserModel.findById({ _id: userId }).select("+password");
@@ -163,69 +163,6 @@ const reactSetAndUpdateDB = async (
   }
 };
 
-const commentsSetAndUpdateDB = async (
-  payload: Partial<TPost>,
-  userId: string,
-  postId: string
-) => {
-  const user = await UserModel.findById({ _id: userId }).select("+password");
-  if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, "User Not found !");
-  }
-
-  if (user?.isDelete) {
-    throw new AppError(httpStatus.BAD_REQUEST, "User Already Delete !");
-  }
-
-  if (user?.status === USER_STATUS.block) {
-    throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
-  }
-  const newPayload = {
-    ...payload,
-    userId: user?._id,
-    postId,
-  };
-
-  //  added react
-  if (newPayload?.isDelete === false) {
-    const resultComment = await CommentModel.create(newPayload);
-    if (!resultComment) {
-      throw new AppError(httpStatus.EXPECTATION_FAILED, "Comment Post Failed");
-    }
-    const result = await PostModel.findOneAndUpdate(
-      { _id: postId },
-      { $addToSet: { comments: resultComment?._id } },
-      { new: true }
-    ).select("comments");
-
-    if (!result) {
-      throw new AppError(httpStatus.EXPECTATION_FAILED, "Already Comment Done");
-    }
-
-    return result;
-  }
-
-  //  remove react
-  // if (newPayload?.isDelete === true) {
-  //   const result = await PostModel.findOneAndUpdate(
-  //     {
-  //       _id: postId,
-  //       "react.userId": user._id, // Ensure userId is not already in the react array
-  //     },
-  //     {
-  //       $pull: { comments: { userId: user._id, isDelete: false } }, // Modify criteria as needed
-  //     },
-  //     {
-  //       new: true, // Return the updated document
-  //     }
-  //   ).select("react");
-
-  //   if (!result) {
-  //     throw new AppError(httpStatus.EXPECTATION_FAILED, "Already Vote Remove");
-  //   }
-  //   return result;
-  // }
-};
 
 // ! public section
 const publicFindAllPostDB = async (queryParams: Partial<TPost>) => {
@@ -267,5 +204,5 @@ export const postService = {
   myAllPostDB,
   publicFindSinglePostDB,
   reactSetAndUpdateDB,
-  commentsSetAndUpdateDB,
+
 };

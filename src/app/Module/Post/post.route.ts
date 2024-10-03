@@ -26,12 +26,7 @@ router.put(
   validationMiddleWare(postZodValidation.updatePostZodSchema),
   postController.reactSetAndUpdate
 );
-router.put(
-  "/comments/:postId",
-  authMiddleWare(USER_ROLE.user, USER_ROLE.admin),
-  validationMiddleWare(postZodValidation.updatePostZodSchema),
-  postController.commentsSetAndUpdate
-);
+
 router.get(
   "/my-all-posts",
   authMiddleWare(USER_ROLE.user, USER_ROLE.admin),
