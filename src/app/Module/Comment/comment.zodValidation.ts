@@ -5,11 +5,14 @@ const commentZodSchema = z.object({
   body: z.object({
     userId: z.string().nonempty("User ID is required").optional(),
     postId: z.string().nonempty("Post ID is required").optional(),
+    previousCommentId: z
+      .string()
+      .nonempty("previousCommentId ID is required")
+      .optional(),
     message: z
       .string()
       .nonempty("Comment message is required")
       .max(500, "Comment message cannot exceed 500 characters"),
-    isReply: z.boolean().optional(),
     replies: z.array(z.string()).optional(), // Optional nested comments
   }),
 });

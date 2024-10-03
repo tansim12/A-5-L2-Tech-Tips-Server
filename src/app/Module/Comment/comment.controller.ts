@@ -62,9 +62,33 @@ const commentsDeleteAndUpdate: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+const repliesCommentsDeleteAndUpdate: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const result = await commentsService.repliesCommentsDeleteAndUpdateDB(
+      req?.user?.id,
+      req?.params?.commentId
+    );
+    res
+      .status(200)
+      .send(
+        successResponse(
+          result,
+          httpStatus.OK,
+          "Comment Delete Successfully Done"
+        )
+      );
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const commentsController = {
   commentsSetAndUpdate,
   commentsDeleteAndUpdate,
   commentReply,
+  repliesCommentsDeleteAndUpdate,
 };

@@ -23,5 +23,10 @@ router.delete(
   authMiddleWare(USER_ROLE.user, USER_ROLE.admin),
   commentsController.commentsDeleteAndUpdate
 );
+router.delete(
+  "/replies/:commentId",
+  authMiddleWare(USER_ROLE.user, USER_ROLE.admin),
+  commentsController.repliesCommentsDeleteAndUpdate
+);
 
 export const commentsRouter = router;
