@@ -126,20 +126,40 @@ const reactAndCommentUpdateDB = async (
     userId: user?._id,
   };
 
-  const result = await PostModel.findByIdAndUpdate(
-    { _id: postId },
-    {
-      $addToSet: { react: newPayload },
-    },
-    {
-      new: true,
-      upsert: true,
+  //  added react
+  if (newPayload?.isDelete === false) {
+    const result = await PostModel.findOneAndUpdate(
+      { _id: postId, "react.userId": { $ne: user?._id } },
+      { $addToSet: { react: newPayload } },
+      { new: true }
+    ).select("react");
+
+    if (!result) {
+      throw new AppError(httpStatus.EXPECTATION_FAILED, "Already Vote Done");
     }
-  );
-  if (!result) {
-    throw new AppError(httpStatus.EXPECTATION_FAILED, "Post Update Failed");
+    return result;
   }
-  return result;
+
+  //  remove react
+  if (newPayload?.isDelete === true) {
+    const result = await PostModel.findOneAndUpdate(
+      {
+        _id: postId,
+        "react.userId": user._id, // Ensure userId is not already in the react array
+      },
+      {
+        $pull: { react: { userId: user._id, isDelete: false } }, // Modify criteria as needed
+      },
+      {
+        new: true, // Return the updated document
+      }
+    ).select("react");
+
+    if (!result) {
+      throw new AppError(httpStatus.EXPECTATION_FAILED, "Already Vote Remove");
+    }
+    return result;
+  }
 };
 
 // ! public section
