@@ -3,8 +3,8 @@ import { z } from "zod";
 // Zod schema for comment validation
 const commentZodSchema = z.object({
   body: z.object({
-    userId: z.string().nonempty("User ID is required"),
-    postId: z.string().nonempty("Post ID is required"),
+    userId: z.string().nonempty("User ID is required").optional(),
+    postId: z.string().nonempty("Post ID is required").optional(),
     message: z
       .string()
       .nonempty("Comment message is required")

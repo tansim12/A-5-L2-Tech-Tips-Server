@@ -16,6 +16,8 @@ const createPost: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+
+// update
 const updatePost: RequestHandler = async (req, res, next) => {
   try {
     const result = await postService.updatePostDB(
@@ -32,9 +34,25 @@ const updatePost: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
-const reactAndCommentUpdate: RequestHandler = async (req, res, next) => {
+const reactSetAndUpdate: RequestHandler = async (req, res, next) => {
   try {
-    const result = await postService.reactAndCommentUpdateDB(
+    const result = await postService.reactSetAndUpdateDB(
+      req?.body,
+      req?.user?.id,
+      req?.params?.postId
+    );
+    res
+      .status(200)
+      .send(
+        successResponse(result, httpStatus.OK, "React Update Successfully Done")
+      );
+  } catch (error) {
+    next(error);
+  }
+};
+const commentsSetAndUpdate: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await postService.commentsSetAndUpdateDB(
       req?.body,
       req?.user?.id,
       req?.params?.postId
@@ -49,6 +67,7 @@ const reactAndCommentUpdate: RequestHandler = async (req, res, next) => {
   }
 };
 
+// find
 const publicFindAllPost: RequestHandler = async (req, res, next) => {
   try {
     const result = await postService.publicFindAllPostDB(req?.query);
@@ -94,5 +113,6 @@ export const postController = {
   publicFindAllPost,
   myAllPost,
   publicFindSinglePost,
-  reactAndCommentUpdate,
+  reactSetAndUpdate,
+  commentsSetAndUpdate,
 };

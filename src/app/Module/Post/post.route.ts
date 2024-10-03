@@ -16,15 +16,21 @@ router.post(
 );
 router.put(
   "/:postId",
-  authMiddleWare(USER_ROLE.user,USER_ROLE.admin),
+  authMiddleWare(USER_ROLE.user, USER_ROLE.admin),
   validationMiddleWare(postZodValidation.updatePostZodSchema),
   postController.updatePost
 );
 router.put(
   "/react/:postId",
-  authMiddleWare(USER_ROLE.user,USER_ROLE.admin),
+  authMiddleWare(USER_ROLE.user, USER_ROLE.admin),
   validationMiddleWare(postZodValidation.updatePostZodSchema),
-  postController.reactAndCommentUpdate
+  postController.reactSetAndUpdate
+);
+router.put(
+  "/comments/:postId",
+  authMiddleWare(USER_ROLE.user, USER_ROLE.admin),
+  validationMiddleWare(postZodValidation.updatePostZodSchema),
+  postController.commentsSetAndUpdate
 );
 router.get(
   "/my-all-posts",
