@@ -23,6 +23,26 @@ const commentsSetAndUpdate: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+const commentReply: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await commentsService.commentReplyDB(
+      req?.body,
+      req?.user?.id,
+      req?.params?.commentId
+    );
+    res
+      .status(200)
+      .send(
+        successResponse(
+          result,
+          httpStatus.OK,
+          "Comment Delete Successfully Done"
+        )
+      );
+  } catch (error) {
+    next(error);
+  }
+};
 const commentsDeleteAndUpdate: RequestHandler = async (req, res, next) => {
   try {
     const result = await commentsService.commentsDeleteAndUpdateDB(
@@ -46,4 +66,5 @@ const commentsDeleteAndUpdate: RequestHandler = async (req, res, next) => {
 export const commentsController = {
   commentsSetAndUpdate,
   commentsDeleteAndUpdate,
+  commentReply,
 };

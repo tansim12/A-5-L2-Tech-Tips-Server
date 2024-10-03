@@ -12,6 +12,12 @@ router.put(
   validationMiddleWare(commentZodValidation.commentZodSchema),
   commentsController.commentsSetAndUpdate
 );
+router.put(
+  "/replies/:commentId",
+  authMiddleWare(USER_ROLE.user, USER_ROLE.admin),
+  validationMiddleWare(commentZodValidation.commentZodSchema),
+  commentsController.commentReply
+);
 router.delete(
   "/:postId",
   authMiddleWare(USER_ROLE.user, USER_ROLE.admin),

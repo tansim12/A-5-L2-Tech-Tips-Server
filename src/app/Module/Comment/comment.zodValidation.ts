@@ -9,6 +9,7 @@ const commentZodSchema = z.object({
       .string()
       .nonempty("Comment message is required")
       .max(500, "Comment message cannot exceed 500 characters"),
+    isReply: z.boolean().optional(),
     replies: z.array(z.string()).optional(), // Optional nested comments
   }),
 });
