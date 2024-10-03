@@ -39,10 +39,10 @@ const updatePostDB = async (
   userId: string,
   postId: string
 ) => {
-  const user = await UserModel.findById({ _id: userId }).select(
-    "+password"
+  const user = await UserModel.findById({ _id: userId }).select("+password");
+  const post = await PostModel.findById({ _id: postId }).select(
+    "_id isDelete userId"
   );
-  const post = await PostModel.findById({ _id: postId }).select("_id isDelete userId");
 
   if (!post) {
     throw new AppError(httpStatus.NOT_FOUND, "Post Not found !");
@@ -62,13 +62,11 @@ const updatePostDB = async (
     throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
   }
 
-if (user?.role === USER_ROLE.user) {
-  if (post?.userId?.toString() !== userId.toString()) {
-    throw new AppError(httpStatus.BAD_REQUEST,"This is not his post !!")
+  if (user?.role === USER_ROLE.user) {
+    if (post?.userId?.toString() !== userId.toString()) {
+      throw new AppError(httpStatus.BAD_REQUEST, "This is not his post !!");
+    }
   }
-}
-
-
 
   const result = await PostModel.findByIdAndUpdate(
     { _id: postId },
@@ -104,6 +102,44 @@ const myAllPostDB = async (queryParams: Partial<TPost>, userId: string) => {
   const result = await queryPost.modelQuery;
   const meta = await queryPost.countTotal();
   return { meta, result };
+};
+
+const reactAndCommentUpdateDB = async (
+  payload: Partial<TPost>,
+  userId: string,
+  postId: string
+) => {
+  const user = await UserModel.findById({ _id: userId }).select("+password");
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User Not found !");
+  }
+
+  if (user?.isDelete) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User Already Delete !");
+  }
+
+  if (user?.status === USER_STATUS.block) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
+  }
+  const newPayload = {
+    ...payload,
+    userId: user?._id,
+  };
+
+  const result = await PostModel.findByIdAndUpdate(
+    { _id: postId },
+    {
+      $addToSet: { react: newPayload },
+    },
+    {
+      new: true,
+      upsert: true,
+    }
+  );
+  if (!result) {
+    throw new AppError(httpStatus.EXPECTATION_FAILED, "Post Update Failed");
+  }
+  return result;
 };
 
 // ! public section
@@ -145,4 +181,5 @@ export const postService = {
   publicFindAllPostDB,
   myAllPostDB,
   publicFindSinglePostDB,
+  reactAndCommentUpdateDB,
 };

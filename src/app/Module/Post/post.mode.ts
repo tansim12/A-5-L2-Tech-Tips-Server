@@ -7,7 +7,6 @@ const ReactSchema = new Schema<TReact>(
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     isDelete: { type: Boolean, default: false },
   },
-  { timestamps: true } // Automatically add createdAt and updatedAt timestamps
 );
 
 // Define the schema for the Post model
