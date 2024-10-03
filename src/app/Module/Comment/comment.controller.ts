@@ -13,7 +13,30 @@ const commentsSetAndUpdate: RequestHandler = async (req, res, next) => {
     res
       .status(200)
       .send(
-        successResponse(result, httpStatus.OK, "React Update Successfully Done")
+        successResponse(
+          result,
+          httpStatus.OK,
+          "Comment Create Successfully Done"
+        )
+      );
+  } catch (error) {
+    next(error);
+  }
+};
+const commentsDeleteAndUpdate: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await commentsService.commentsDeleteAndUpdateDB(
+      req?.user?.id,
+      req?.params?.postId
+    );
+    res
+      .status(200)
+      .send(
+        successResponse(
+          result,
+          httpStatus.OK,
+          "Comment Delete Successfully Done"
+        )
       );
   } catch (error) {
     next(error);
@@ -22,4 +45,5 @@ const commentsSetAndUpdate: RequestHandler = async (req, res, next) => {
 
 export const commentsController = {
   commentsSetAndUpdate,
+  commentsDeleteAndUpdate,
 };

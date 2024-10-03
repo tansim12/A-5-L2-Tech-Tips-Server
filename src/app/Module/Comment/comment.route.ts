@@ -12,5 +12,10 @@ router.put(
   validationMiddleWare(commentZodValidation.commentZodSchema),
   commentsController.commentsSetAndUpdate
 );
+router.delete(
+  "/:postId",
+  authMiddleWare(USER_ROLE.user, USER_ROLE.admin),
+  commentsController.commentsDeleteAndUpdate
+);
 
 export const commentsRouter = router;
