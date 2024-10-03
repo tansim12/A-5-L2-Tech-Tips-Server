@@ -2,7 +2,7 @@ import httpStatus from "http-status";
 import AppError from "../../Error-Handle/AppError";
 import { UserModel } from "../User/User.model";
 import { TPost } from "./post.interface";
-import { USER_STATUS } from "../User/User.const";
+import { USER_ROLE, USER_STATUS } from "../User/User.const";
 import PostModel from "./post.mode";
 import QueryBuilder2 from "../../Builder/QueryBuilder2";
 import { postSearchableFields } from "./post.const";
@@ -40,14 +40,13 @@ const updatePostDB = async (
   postId: string
 ) => {
   const user = await UserModel.findById({ _id: userId }).select(
-    "name email phone isDelete status"
+    "+password"
   );
-  const post = await PostModel.findById({ _id: postId }).select("_id isDelete");
+  const post = await PostModel.findById({ _id: postId }).select("_id isDelete userId");
 
   if (!post) {
     throw new AppError(httpStatus.NOT_FOUND, "Post Not found !");
   }
-
   if (post?.isDelete) {
     throw new AppError(httpStatus.BAD_REQUEST, "Post Already Delete !");
   }
@@ -62,6 +61,15 @@ const updatePostDB = async (
   if (user?.status === USER_STATUS.block) {
     throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
   }
+
+if (user?.role === USER_ROLE.user) {
+  if (post?.userId?.toString() !== userId.toString()) {
+    throw new AppError(httpStatus.BAD_REQUEST,"This is not his post !!")
+  }
+}
+
+
+
   const result = await PostModel.findByIdAndUpdate(
     { _id: postId },
     {

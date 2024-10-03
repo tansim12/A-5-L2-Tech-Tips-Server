@@ -16,7 +16,7 @@ router.post(
 );
 router.put(
   "/:postId",
-  authMiddleWare(USER_ROLE.user),
+  authMiddleWare(USER_ROLE.user,USER_ROLE.admin),
   validationMiddleWare(postZodValidation.updatePostZodSchema),
   postController.updatePost
 );
