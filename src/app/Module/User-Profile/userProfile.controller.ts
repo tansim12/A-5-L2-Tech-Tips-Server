@@ -16,7 +16,21 @@ const updateUserProfile: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+const createFollowing: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await userProfileService.createFollowingDB(
+      req?.user?.id,
+      req?.params?.followerId
+    );
+    res
+      .status(200)
+      .send(successResponse(result, httpStatus.OK, "Following Done"));
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const userProfileController = {
-   updateUserProfile,
+  updateUserProfile,
+  createFollowing,
 };

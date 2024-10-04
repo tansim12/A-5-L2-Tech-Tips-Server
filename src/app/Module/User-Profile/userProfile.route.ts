@@ -9,9 +9,15 @@ const router = express.Router();
 
 router.put(
   "/",
-  authMiddleWare(USER_ROLE.user),
+  authMiddleWare(USER_ROLE.user, USER_ROLE.admin),
   validationMiddleWare(userProfileZodValidation.userProfileZodSchema),
-  userProfileController.updateUserProfile)
-
+  userProfileController.updateUserProfile
+);
+router.put(
+  "/create-followers/:followerId",
+  authMiddleWare(USER_ROLE.user, USER_ROLE.admin),
+  validationMiddleWare(userProfileZodValidation.userProfileZodSchema),
+  userProfileController.createFollowing
+);
 
 export const userProfileRoute = router;
