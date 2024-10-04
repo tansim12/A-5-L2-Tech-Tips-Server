@@ -58,7 +58,11 @@ const updateUserProfileDB = async (
   return result;
 };
 
-const createFollowingDB = async (userId: string, followersId: string) => {
+const createAndRemoveFollowingDB = async (
+  userId: string,
+  followersId: string,
+  payload: Partial<TUserProfile>
+) => {
   const user = await UserModel.findById(userId).select("+password");
   // Find user profile by the userId field in the UserProfileModel
   const userProfile = await UserProfileModel.findOne({
@@ -78,26 +82,45 @@ const createFollowingDB = async (userId: string, followersId: string) => {
   if (user?.status === USER_STATUS.block) {
     throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
   }
-
-  const result = await UserProfileModel.findOneAndUpdate(
-    {
-      userId: followersId,
-      followers: { $ne: user?._id },
-    },
-    {
-      $addToSet: { followers: user?._id },
-    },
-    {
-      new: true,
+ 
+  if (payload?.isCreateFollowing === true) {
+    const result = await UserProfileModel.findOneAndUpdate(
+      {
+        userId: followersId,
+        followers: { $ne: user?._id },
+      },
+      {
+        $addToSet: { followers: user?._id },
+      },
+      {
+        new: true,
+      }
+    ).select("followers");
+    if (!result) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Your Are Already Following");
     }
-  ).select("followers");
-  if (!result) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Your Are Already Following");
+    return result;
   }
-  return result;
+  if (payload?.isCreateFollowing === false) {
+    const result = await UserProfileModel.findOneAndUpdate(
+      {
+        userId: followersId,
+      },
+      {
+        $pull: { followers: user?._id },
+      },
+      {
+        new: true,
+      }
+    ).select("followers");
+    if (!result) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Please Follow Fast");
+    }
+    return result;
+  }
 };
 
 export const userProfileService = {
   updateUserProfileDB,
-  createFollowingDB,
+  createAndRemoveFollowingDB,
 };

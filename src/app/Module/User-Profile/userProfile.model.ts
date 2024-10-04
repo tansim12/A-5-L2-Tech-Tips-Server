@@ -1,4 +1,4 @@
-import { Schema, model, } from "mongoose";
+import { Schema, model } from "mongoose";
 import { TUserProfile } from "./userProfile.interface";
 
 // Define the schema
@@ -10,6 +10,9 @@ const UserProfileSchema = new Schema(
     },
     bio: {
       type: String,
+    },
+    isCreateFollowing: {
+      type: Boolean,
     },
     description: {
       type: String,

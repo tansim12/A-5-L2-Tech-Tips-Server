@@ -14,10 +14,10 @@ router.put(
   userProfileController.updateUserProfile
 );
 router.put(
-  "/create-followers/:followerId",
+  "/create-and-remove-followers/:followerId",
   authMiddleWare(USER_ROLE.user, USER_ROLE.admin),
   validationMiddleWare(userProfileZodValidation.userProfileZodSchema),
-  userProfileController.createFollowing
+  userProfileController.createAndRemoveFollowing
 );
 
 export const userProfileRoute = router;

@@ -12,6 +12,7 @@ const userProfileZodSchema = z.object({
       .optional(),
     bio: z.string().optional(),
     description: z.string().optional(),
+    isCreateFollowing: z.boolean().optional(),
     profilePhoto: z.string().url("Invalid URL").optional(),
     coverPhoto: z.string().url("Invalid URL").optional(),
     followers: z

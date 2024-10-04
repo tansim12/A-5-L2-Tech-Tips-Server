@@ -16,11 +16,12 @@ const updateUserProfile: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
-const createFollowing: RequestHandler = async (req, res, next) => {
+const createAndRemoveFollowing: RequestHandler = async (req, res, next) => {
   try {
-    const result = await userProfileService.createFollowingDB(
+    const result = await userProfileService.createAndRemoveFollowingDB(
       req?.user?.id,
-      req?.params?.followerId
+      req?.params?.followerId,
+      req?.body
     );
     res
       .status(200)
@@ -32,5 +33,5 @@ const createFollowing: RequestHandler = async (req, res, next) => {
 
 export const userProfileController = {
   updateUserProfile,
-  createFollowing,
+  createAndRemoveFollowing,
 };
