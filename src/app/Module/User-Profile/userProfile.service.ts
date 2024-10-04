@@ -82,7 +82,7 @@ const createAndRemoveFollowingDB = async (
   if (user?.status === USER_STATUS.block) {
     throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
   }
- 
+
   if (payload?.isCreateFollowing === true) {
     const result = await UserProfileModel.findOneAndUpdate(
       {
@@ -120,7 +120,35 @@ const createAndRemoveFollowingDB = async (
   }
 };
 
+const findMyProfileDB = async (userId: string) => {
+  const user = await UserModel.findById(userId).select("+password");
+  // Find user profile by the userId field in the UserProfileModel
+  const userProfile = await UserProfileModel.findOne({
+    userId,
+  }).populate({
+    path: "userId",
+    select: "+password",
+  });
+
+  if (!userProfile) {
+    throw new AppError(httpStatus.NOT_FOUND, "User Profile Data Not Found !");
+  }
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User Not found !");
+  }
+  if (user?.isDelete) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User Already Delete !");
+  }
+
+  if (user?.status === USER_STATUS.block) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
+  }
+
+  return userProfile;
+};
+
 export const userProfileService = {
   updateUserProfileDB,
   createAndRemoveFollowingDB,
+  findMyProfileDB,
 };

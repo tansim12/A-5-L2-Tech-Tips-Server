@@ -19,5 +19,10 @@ router.put(
   validationMiddleWare(userProfileZodValidation.userProfileZodSchema),
   userProfileController.createAndRemoveFollowing
 );
+router.get(
+  "/",
+  authMiddleWare(USER_ROLE.user, USER_ROLE.admin),
+  userProfileController.findMyProfile
+);
 
 export const userProfileRoute = router;

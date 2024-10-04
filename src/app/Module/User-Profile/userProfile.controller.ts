@@ -25,7 +25,23 @@ const createAndRemoveFollowing: RequestHandler = async (req, res, next) => {
     );
     res
       .status(200)
-      .send(successResponse(result, httpStatus.OK, "Following Done"));
+      .send(successResponse(result, httpStatus.OK, "Following Update Done"));
+  } catch (error) {
+    next(error);
+  }
+};
+const findMyProfile: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await userProfileService.findMyProfileDB(req?.user?.id);
+    res
+      .status(200)
+      .send(
+        successResponse(
+          result,
+          httpStatus.OK,
+          "Find My Profile Successfully Done"
+        )
+      );
   } catch (error) {
     next(error);
   }
@@ -34,4 +50,5 @@ const createAndRemoveFollowing: RequestHandler = async (req, res, next) => {
 export const userProfileController = {
   updateUserProfile,
   createAndRemoveFollowing,
+  findMyProfile,
 };
