@@ -6,6 +6,7 @@ import { paymentRoutes } from "./app/Module/Payment/Payment.route";
 import { userProfileRoute } from "./app/Module/User-Profile/userProfile.route";
 import { postRoute } from "./app/Module/Post/post.route";
 import { commentsRouter } from "./app/Module/Comment/comment.route";
+import { userRoutes } from "./app/Module/User/User.route";
 
 const app: Application = express();
 normalMiddleware(app);
@@ -13,6 +14,7 @@ normalMiddleware(app);
 // "/api/";
 
 app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
 app.use("/api/user-profile", userProfileRoute);
 app.use("/api/post", postRoute);
 app.use("/api/comments", commentsRouter);
