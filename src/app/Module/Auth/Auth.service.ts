@@ -65,6 +65,11 @@ const singUpDB = async (payload: Partial<TUser>) => {
     const jwtPayload = {
       id: result[0]?._id,
       role: result[0]?.role as string,
+      isVerified: result[0]?.isVerified,
+      profilePhoto: result[0]?.profilePhoto,
+      phone: result[0]?.phone,
+      email: result[0]?.email,
+      name: result[0]?.name,
     };
 
     const accessToken = dynamicTokenGenerate(
