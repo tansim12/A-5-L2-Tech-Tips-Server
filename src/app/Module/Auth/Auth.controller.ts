@@ -12,7 +12,11 @@ const singUp: RequestHandler = async (req, res, next) => {
       httpOnly: true,
     });
     res.send(
-      successResponse({ accessToken }, 201, "User registered successfully")
+      successResponse(
+        { accessToken, refreshToken },
+        201,
+        "User registered successfully"
+      )
     );
   } catch (error) {
     next(error);
@@ -28,7 +32,11 @@ const signIn: RequestHandler = async (req, res, next) => {
       httpOnly: true,
     });
     res.send(
-      successResponse({ accessToken }, 200, "User logged in successfully")
+      successResponse(
+        { accessToken, refreshToken },
+        200,
+        "User logged in successfully"
+      )
     );
   } catch (error) {
     next(error);
@@ -66,7 +74,7 @@ const changePassword: RequestHandler = async (req, res, next) => {
 };
 const forgetPassword: RequestHandler = async (req, res, next) => {
   try {
-    const result = await authService.forgetPasswordDB( req.body);
+    const result = await authService.forgetPasswordDB(req.body);
     res.send(
       successResponse(
         result,

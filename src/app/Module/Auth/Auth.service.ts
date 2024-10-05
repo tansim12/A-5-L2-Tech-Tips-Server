@@ -122,6 +122,11 @@ const signInDB = async (payload: TSignIn) => {
   const jwtPayload = {
     id: user?._id,
     role: user?.role as string,
+    isVerified: user?.isVerified,
+    profilePhoto: user?.profilePhoto,
+    phone: user?.phone,
+    email: user?.email,
+    name: user?.name,
   };
 
   const accessToken = dynamicTokenGenerate(
