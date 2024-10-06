@@ -1,15 +1,17 @@
 import { z } from "zod";
 import { postCategoriesArray } from "./post.const";
 
-
 const reactSchema = z.object({
-  isDelete: z.boolean(),     // Optional field to represent deletion status
+  isDelete: z.boolean(), // Optional field to represent deletion status
 });
 
 // Zod schema for post validation
 const createPostZodSchema = z.object({
   body: z.object({
     userId: z.string().nonempty("User ID is required").optional(),
+    title: z
+      .string({ required_error: "Title is required" })
+      .max(70, "Title cannot exceed 70 characters"),
     category: z.enum(postCategoriesArray, {
       errorMap: () => ({ message: "Invalid category" }),
     }),
@@ -27,9 +29,15 @@ const createPostZodSchema = z.object({
 const updatePostZodSchema = z.object({
   body: z.object({
     userId: z.string().nonempty("User ID is required").optional(),
-    category: z.enum(postCategoriesArray, {
-      errorMap: () => ({ message: "Invalid category" }),
-    }).optional(),
+    title: z
+      .string({ required_error: "Title is required" })
+      .max(70, "Title cannot exceed 70 characters")
+      .optional(),
+    category: z
+      .enum(postCategoriesArray, {
+        errorMap: () => ({ message: "Invalid category" }),
+      })
+      .optional(),
     description: z
       .string()
       .nonempty("Description is required")

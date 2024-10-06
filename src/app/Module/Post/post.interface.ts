@@ -19,6 +19,7 @@ export enum TPostCategory {
 }
 
 export type TPost = {
+  title: string;
   userId?: Types.ObjectId;
   category: TPostCategory;
   description: string;
