@@ -6,17 +6,18 @@ export type TReact = {
 };
 
 export enum TPostCategory {
-  WebDevelopment = "Web Development",
-  SoftwareEngineering = "Software Engineering",
-  AI = "Artificial Intelligence",
-  DataScience = "Data Science",
+  WebDevelopment = "WebDevelopment",
+  SoftwareEngineering = "SoftwareEngineering",
+  AI = "ArtificialIntelligence",
+  DataScience = "DataScience",
   Cybersecurity = "Cybersecurity",
-  MobileAppDevelopment = "Mobile App Development",
-  CloudComputing = "Cloud Computing",
+  MobileAppDevelopment = "MobileAppDevelopment",
+  CloudComputing = "CloudComputing",
   DevOps = "DevOps",
-  MachineLearning = "Machine Learning",
-  BlockchainTechnology = "Blockchain Technology",
+  MachineLearning = "MachineLearning",
+  BlockchainTechnology = "BlockchainTechnology",
 }
+
 
 export type TPost = {
   title: string;

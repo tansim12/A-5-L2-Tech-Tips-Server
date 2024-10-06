@@ -180,6 +180,7 @@ const publicFindAllPostDB = async (queryParams: Partial<TPost>) => {
     .sort();
   const result = await queryPost.modelQuery;
   const meta = await queryPost.countTotal();
+  
   return { meta, result };
 };
 const publicFindSinglePostDB = async (postId: string) => {

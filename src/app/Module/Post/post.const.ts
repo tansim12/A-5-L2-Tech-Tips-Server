@@ -1,14 +1,14 @@
 export const postCategoriesArray = [
-  "Web Development",
-  "Software Engineering",
-  "Artificial Intelligence",
-  "Data Science",
+  "WebDevelopment",
+  "SoftwareEngineering",
+  "ArtificialIntelligence",
+  "DataScience",
   "Cybersecurity",
-  "Mobile App Development",
-  "Cloud Computing",
+  "MobileAppDevelopment",
+  "CloudComputing",
   "DevOps",
-  "Machine Learning",
-  "Blockchain Technology",
+  "MachineLearning",
+  "BlockchainTechnology",
 ] as const;
 
 export const postSearchableFields = ["category", "description", "premium","title"];
