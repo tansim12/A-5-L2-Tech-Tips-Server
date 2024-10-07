@@ -11,4 +11,4 @@ export const postCategoriesArray = [
   "BlockchainTechnology",
 ] as const;
 
-export const postSearchableFields = ["category", "description", "premium","title"];
+export const postSearchableFields = ["category", "description","title"];
