@@ -8,6 +8,8 @@ import { USER_STATUS } from "../User/User.const";
 dotenv.config();
 import { v7 as uuidv7 } from "uuid";
 import { verifyPayment } from "../../Utils/verifyPayment";
+import PaymentInfoModel from "./payment.model";
+import { startSession } from "mongoose";
 
 const paymentDB = async (body: any, userId: string) => {
   const user = await UserModel.findById({ _id: userId }).select(
@@ -34,7 +36,7 @@ const paymentDB = async (body: any, userId: string) => {
     cus_name: `${user?.name ? user?.name : "N/A"}`,
     cus_email: `${user?.email ? user?.email : "N/A"}`,
     cus_phone: `${user?.phone ? user?.phone : "N/A"}`,
-    amount: 10,
+    amount: body?.amount,
     tran_id: combinedTransactionId,
     signature_key: process.env.AAMAR_PAY_SIGNATURE_KEY,
     // store_id: process.env.AAMAR_PAY_STORE_ID,
@@ -45,7 +47,8 @@ const paymentDB = async (body: any, userId: string) => {
     cus_add2: "N/A",
     cus_city: "N/A",
     cus_country: "Bangladesh",
-    success_url: process.env.FRONTEND_URL,
+    success_url: `${process.env.BASE_URL}/api/payment/callback?txnId=${combinedTransactionId}&userId=${user?._id}`,
+
     fail_url: `${process.env.BASE_URL}/api/payment/callback`,
     cancel_url: `${process.env.FRONTEND_URL}/payment-cancel`, // its redirect to frontend directly
     type: "json", //This is must required for JSON request
@@ -68,30 +71,133 @@ const paymentDB = async (body: any, userId: string) => {
   };
 };
 
-const callbackDB = async (body: any, query: any) => {
-  if (body && body?.status_code === "2") {
-    const verifyPaymentData = await verifyPayment(query?.txnId);
-    if (verifyPaymentData && verifyPaymentData?.status_code === "2") {
-      // data update here
-      const { approval_code, payment_type, amount, cus_phone, mer_txnid } =
-        verifyPaymentData;
-      const paymentData = {
-        mer_txnid,
-        cus_phone,
-        amount,
-        payment_type,
-        approval_code,
-      };
-      console.log(paymentData);
-      
-      // ! business logic here
-    }
-  }
+// const callbackDB = async (body: any, query: any) => {
+//   if (body && body?.status_code === "2") {
+//     const verifyPaymentData = await verifyPayment(query?.txnId);
+//     if (verifyPaymentData && verifyPaymentData?.status_code === "2") {
+//       // data update here
+//       const { approval_code, payment_type, amount, cus_phone, mer_txnid } =
+//         verifyPaymentData;
+//       const paymentData = {
+//         userId: query?.userId,
+//         mer_txnid,
+//         cus_phone,
+//         amount,
+//         payment_type,
+//         approval_code,
+//       };
 
-  if (body && body?.status_code === "7") {
-    return {
-      success: false,
-    };
+//       const result = await UserModel.findByIdAndUpdate(
+//         { _id: query?.userId },
+//         {
+//           isVerified: true,
+//         },
+//         { new: true }
+//       ).select("_id");
+
+//       if (!result?._id) {
+//         throw new AppError(
+//           httpStatus.PRECONDITION_FAILED,
+//           "User isVerified update failed"
+//         );
+//       }
+
+//       const savePaymentInfo = await PaymentInfoModel.create(paymentData);
+//       if (!savePaymentInfo) {
+//         throw new AppError(
+//           httpStatus.PRECONDITION_FAILED,
+//           "Payment info create failed"
+//         );
+//       }
+
+//       return {
+//         success: true,
+//         txnId: query?.txnId,
+//       };
+//       // ! business logic here
+//     }
+//   }
+
+//   if (body && body?.status_code === "7") {
+//     return {
+//       success: false,
+//     };
+//   }
+// };
+
+const callbackDB = async (body: any, query: any) => {
+  const session = await startSession();
+  session.startTransaction();
+
+  try {
+    if (body && body?.status_code === "2") {
+      const verifyPaymentData = await verifyPayment(query?.txnId);
+
+      if (verifyPaymentData && verifyPaymentData?.status_code === "2") {
+        // Destructuring the necessary data
+        const { approval_code, payment_type, amount, cus_phone, mer_txnid } =
+          verifyPaymentData;
+
+        // Prepare the payment data
+        const paymentData = {
+          userId: query?.userId,
+          mer_txnid,
+          cus_phone,
+          amount,
+          payment_type,
+          approval_code,
+        };
+
+        // Update user isVerified field
+        const result = await UserModel.findByIdAndUpdate(
+          { _id: query?.userId },
+          { isVerified: true },
+          { new: true, session } // Pass the session for transaction
+        ).select("_id");
+
+        if (!result?._id) {
+          throw new AppError(
+            httpStatus.PRECONDITION_FAILED,
+            "User isVerified update failed"
+          );
+        }
+
+        // Save the payment info
+        const savePaymentInfo = await PaymentInfoModel.create([paymentData], {
+          session,
+        });
+        if (!savePaymentInfo) {
+          throw new AppError(
+            httpStatus.PRECONDITION_FAILED,
+            "Payment info create failed"
+          );
+        }
+
+        // Commit the transaction
+        await session.commitTransaction();
+        session.endSession();
+
+        return {
+          success: true,
+          txnId: query?.txnId,
+        };
+      }
+    }
+
+    if (body && body?.status_code === "7") {
+      return {
+        success: false,
+      };
+    }
+
+    // If something doesn't match, abort the transaction
+    await session.abortTransaction();
+    session.endSession();
+  } catch (error) {
+    // Abort the transaction on any error
+    await session.abortTransaction();
+    session.endSession();
+    throw new AppError(httpStatus.PRECONDITION_FAILED, "Payment Failed"); // Rethrow the error to handle it outside the function
   }
 };
 

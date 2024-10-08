@@ -7,7 +7,7 @@ dotenv.config()
 const payment: RequestHandler = async (req, res, next) => {
   try {
     const result = await paymentService.paymentDB(req.body, req.user?.id);
-    res.send(successResponse(result, 200, "Car booked successfully"));
+    res.send(successResponse(result, 200, "Payment ongoing ..."));
   } catch (error) {
     next(error);
   }
@@ -15,15 +15,17 @@ const payment: RequestHandler = async (req, res, next) => {
 const callback: RequestHandler = async (req, res, next) => {
   try {
     const result = await paymentService.callbackDB(req.body, req?.query);
+    console.log(result,process.env.FRONTEND_URL);
+    
     if (result?.success) {
       res.redirect(
         // `${process.env.FRONTEND_URL}payment-success?bookingId=${result?.bookingId}`
         //! todo should be dynamic transaction id
-        `${process.env.FRONTEND_URL}payment-success?bookingId=${"transaction id"}`
+        `${process.env.FRONTEND_URL}/payment-success?bookingId=${result?.txnId}`
       );
     }
     if (result?.success === false) {
-      res.redirect(`${process.env.FRONTEND_URL}payment-failed`);
+      res.redirect(`${process.env.FRONTEND_URL}/payment-failed`);
     }
   } catch (error) {
     next(error);

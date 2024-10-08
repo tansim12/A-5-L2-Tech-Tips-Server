@@ -29,12 +29,13 @@ const updateProfileDB = async (
   if (
     (body?.role && tokenIdByUser?.role === USER_ROLE.user) ||
     (body?.status && tokenIdByUser?.role === USER_ROLE.user) ||
+    (body?.isVerified && tokenIdByUser?.role === USER_ROLE.user) ||
     tokenIdByUser?.status === USER_STATUS?.block ||
     tokenIdByUser?.isDelete === true
   ) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      "Your Can not change Role or status!"
+      "Your Can not change Role,Status and isVerified"
     );
   }
 

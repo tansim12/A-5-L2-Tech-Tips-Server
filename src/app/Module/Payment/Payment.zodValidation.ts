@@ -1,13 +1,9 @@
-import { Types } from "mongoose";
 import { z } from "zod";
 
 const paymentZodSchema = z.object({
   body: z.object({
-    bookingId: z.string().refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid Booking ID",
-    }),
-    isAdvancePayment: z.boolean().refine((val) => typeof val === "boolean", {
-      message: "isAdvancePayment must be a boolean",
+    amount: z.number().refine((val) => typeof val === "number", {
+      message: "amount must be a number",
     }),
   }),
 });
