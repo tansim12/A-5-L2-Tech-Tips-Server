@@ -14,9 +14,7 @@ const payment: RequestHandler = async (req, res, next) => {
 };
 const callback: RequestHandler = async (req, res, next) => {
   try {
-    const result = await paymentService.callbackDB(req.body, req?.query);
-    console.log(result,process.env.FRONTEND_URL);
-    
+    const result = await paymentService.callbackDB(req.body, req?.query); 
     if (result?.success) {
       res.redirect(
         // `${process.env.FRONTEND_URL}payment-success?bookingId=${result?.bookingId}`

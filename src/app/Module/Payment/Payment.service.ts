@@ -71,60 +71,6 @@ const paymentDB = async (body: any, userId: string) => {
   };
 };
 
-// const callbackDB = async (body: any, query: any) => {
-//   if (body && body?.status_code === "2") {
-//     const verifyPaymentData = await verifyPayment(query?.txnId);
-//     if (verifyPaymentData && verifyPaymentData?.status_code === "2") {
-//       // data update here
-//       const { approval_code, payment_type, amount, cus_phone, mer_txnid } =
-//         verifyPaymentData;
-//       const paymentData = {
-//         userId: query?.userId,
-//         mer_txnid,
-//         cus_phone,
-//         amount,
-//         payment_type,
-//         approval_code,
-//       };
-
-//       const result = await UserModel.findByIdAndUpdate(
-//         { _id: query?.userId },
-//         {
-//           isVerified: true,
-//         },
-//         { new: true }
-//       ).select("_id");
-
-//       if (!result?._id) {
-//         throw new AppError(
-//           httpStatus.PRECONDITION_FAILED,
-//           "User isVerified update failed"
-//         );
-//       }
-
-//       const savePaymentInfo = await PaymentInfoModel.create(paymentData);
-//       if (!savePaymentInfo) {
-//         throw new AppError(
-//           httpStatus.PRECONDITION_FAILED,
-//           "Payment info create failed"
-//         );
-//       }
-
-//       return {
-//         success: true,
-//         txnId: query?.txnId,
-//       };
-//       // ! business logic here
-//     }
-//   }
-
-//   if (body && body?.status_code === "7") {
-//     return {
-//       success: false,
-//     };
-//   }
-// };
-
 const callbackDB = async (body: any, query: any) => {
   const session = await startSession();
   session.startTransaction();
