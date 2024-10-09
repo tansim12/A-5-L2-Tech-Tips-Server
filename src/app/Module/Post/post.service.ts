@@ -7,7 +7,6 @@ import PostModel from "./post.mode";
 import QueryBuilder2 from "../../Builder/QueryBuilder2";
 import { postSearchableFields } from "./post.const";
 
-
 const createPostDB = async (payload: Partial<TPost>, userId: string) => {
   const user = await UserModel.findById({ _id: userId }).select("+password");
 
@@ -163,14 +162,30 @@ const reactSetAndUpdateDB = async (
   }
 };
 
-
 // ! public section
 const publicFindAllPostDB = async (queryParams: Partial<TPost>) => {
   const queryPost = new QueryBuilder2(
-    PostModel.find().populate({
-      path: "userId",
-      select: "name isVerified profilePhoto role",
-    }),
+    PostModel.find()
+      .populate({
+        path: "userId", // Populate userId with selected fields
+        select: "name isVerified profilePhoto role",
+      })
+      .populate({
+        path: "comments", // Populate comments with selected fields
+        populate: [
+          {
+            path: "userId", // Further populate the userId inside comments
+            select: "name isVerified profilePhoto",
+          },
+          {
+            path: "replies", // Populate replies within comments
+            populate: {
+              path: "userId", // Populate userId within replies
+              select: "name isVerified profilePhoto",
+            },
+          },
+        ],
+      }),
     queryParams
   )
     .fields()
@@ -178,11 +193,14 @@ const publicFindAllPostDB = async (queryParams: Partial<TPost>) => {
     .paginate()
     .search(postSearchableFields)
     .sort();
+
   const result = await queryPost.modelQuery;
   const meta = await queryPost.countTotal();
-  
+
   return { meta, result };
 };
+
+
 const publicFindSinglePostDB = async (postId: string) => {
   const result = await PostModel.findById({ _id: postId }).populate({
     path: "userId",
@@ -205,5 +223,4 @@ export const postService = {
   myAllPostDB,
   publicFindSinglePostDB,
   reactSetAndUpdateDB,
-
 };
