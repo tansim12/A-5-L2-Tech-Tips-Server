@@ -71,7 +71,7 @@ const updateProfileDB = async (
 const getSingleUserDB = async (tokenUserId: string, paramsUserId: string) => {
   const user = await UserModel.findById({ _id: tokenUserId }).select(
     "+password"
-  );
+  ).populate({path:"userProfile",select:"_id followers"});
   if (user?.role === USER_ROLE.user) {
     if (tokenUserId.toString() !== paramsUserId) {
       throw new AppError(httpStatus.BAD_REQUEST, "You Can't find This User");

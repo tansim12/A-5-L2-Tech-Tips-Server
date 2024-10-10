@@ -58,6 +58,13 @@ const singUpDB = async (payload: Partial<TUser>) => {
       );
     }
 
+    // Update the user with the profile ID
+    await UserModel.updateOne(
+      { _id: result[0]?._id },
+      { userProfile: createUserProfile[0]._id }, // Set the userProfile to the created profile ID
+      { session }
+    );
+
     // If both user and profile creation succeeded, commit the transaction
     await session.commitTransaction();
 

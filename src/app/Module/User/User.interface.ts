@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { USER_ROLE, USER_STATUS } from "./User.const";
 
 export interface TUser {
@@ -11,6 +12,7 @@ export interface TUser {
   isDelete?: boolean;
   profilePhoto?: string;
   isVerified?: boolean;
+  userProfile?:Types.ObjectId
 }
 export type TUserRole = keyof typeof USER_ROLE;
 export type TUserStatus = keyof typeof USER_STATUS;

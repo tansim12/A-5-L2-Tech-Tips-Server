@@ -14,6 +14,7 @@ const userCreateValidationSchemaZod = z.object({
       .enum(["active", "block"], { required_error: "Status is required" })
       .optional(),
     isDelete: z.boolean().optional(),
+    userProfile: z.string().optional(),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters long")
@@ -38,6 +39,7 @@ const userUpdateValidationSchemaZod = z.object({
     status: z
       .enum(["active", "block"], { required_error: "Status is required" })
       .optional(),
+    userProfile: z.string().optional(),
     profilePhoto: z.string().nonempty("Profile Photo is required").optional(),
     isDelete: z.boolean().optional(),
     phone: z.string().nonempty("Phone number is required").optional(),
