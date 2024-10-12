@@ -125,10 +125,15 @@ const findMyProfileDB = async (userId: string) => {
   // Find user profile by the userId field in the UserProfileModel
   const userProfile = await UserProfileModel.findOne({
     userId,
-  }).populate({
-    path: "userId",
-    select: "+password",
-  });
+  })
+    .populate({
+      path: "userId",
+      select: "+password",
+    })
+    .populate({
+      path: "followers",
+      select: "_id name profilePhoto isVerified",
+    });
 
   if (!userProfile) {
     throw new AppError(httpStatus.NOT_FOUND, "User Profile Data Not Found !");
