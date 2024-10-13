@@ -88,26 +88,27 @@ const updatePostDB = async (
 
 const myAllPostDB = async (queryParams: Partial<TPost>, userId: string) => {
   const queryPost = new QueryBuilder2(
-    PostModel.find({ userId }) .populate({
-      path: "userId", // Populate userId with selected fields
-      select: "name isVerified profilePhoto role",
-    })
-    .populate({
-      path: "comments", // Populate comments with selected fields
-      populate: [
-        {
-          path: "userId", // Further populate the userId inside comments
-          select: "name isVerified profilePhoto",
-        },
-        {
-          path: "replies", // Populate replies within comments
-          populate: {
-            path: "userId", // Populate userId within replies
+    PostModel.find({ userId, isDelete: false })
+      .populate({
+        path: "userId", // Populate userId with selected fields
+        select: "name isVerified profilePhoto role",
+      })
+      .populate({
+        path: "comments", // Populate comments with selected fields
+        populate: [
+          {
+            path: "userId", // Further populate the userId inside comments
             select: "name isVerified profilePhoto",
           },
-        },
-      ],
-    }),
+          {
+            path: "replies", // Populate replies within comments
+            populate: {
+              path: "userId", // Populate userId within replies
+              select: "name isVerified profilePhoto",
+            },
+          },
+        ],
+      }),
     queryParams
   )
     .fields()
@@ -181,7 +182,7 @@ const reactSetAndUpdateDB = async (
 // ! public section
 const publicFindAllPostDB = async (queryParams: Partial<TPost>) => {
   const queryPost = new QueryBuilder2(
-    PostModel.find()
+    PostModel.find({ isDelete: false })
       .populate({
         path: "userId", // Populate userId with selected fields
         select: "name isVerified profilePhoto role",
@@ -215,7 +216,6 @@ const publicFindAllPostDB = async (queryParams: Partial<TPost>) => {
 
   return { meta, result };
 };
-
 
 const publicFindSinglePostDB = async (postId: string) => {
   const result = await PostModel.findById({ _id: postId }).populate({
