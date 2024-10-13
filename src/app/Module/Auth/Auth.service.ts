@@ -215,58 +215,6 @@ const refreshTokenDB = async (token: string) => {
   return { accessToken };
 };
 
-const changePasswordDB = async (id: string, payload: TChangePassword) => {
-  const { oldPassword, newPassword } = payload;
-
-  // validation is exists
-  const user = await UserModel.findById(id).select("+password");
-
-  if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, "This User Not Found !");
-  }
-  // validate isExistsUserDeleted
-  const isExistsUserDeleted = user?.isDelete;
-  if (isExistsUserDeleted) {
-    throw new AppError(httpStatus.NOT_FOUND, "This User Already Deleted !");
-  }
-  const isExistsUserStatus = user?.status;
-  if (isExistsUserStatus === USER_STATUS?.block) {
-    throw new AppError(httpStatus.NOT_FOUND, "This User Blocked !");
-  }
-  // check password is correct
-  const checkPassword = await validateLoginPassword(
-    oldPassword,
-    user?.password
-  );
-  if (!checkPassword) {
-    throw new AppError(
-      400,
-      "Old Password dose not matched... Try again letter 😥"
-    );
-  }
-  // updating user model needPassword change false and password bcrypt
-  let newPasswordBcrypt;
-  if (checkPassword) {
-    newPasswordBcrypt = await Bcrypt.hash(
-      newPassword,
-      Number(process.env.BCRYPT_NUMBER)
-    );
-  }
-  if (!newPasswordBcrypt) {
-    throw new AppError(400, "Password Not Change here");
-  }
-  const result = await UserModel.findByIdAndUpdate(id, {
-    password: newPasswordBcrypt,
-    passwordChangeAt: new Date(),
-  });
-
-  if (result) {
-    return null;
-  } else {
-    throw new AppError(400, "Password Not Change here");
-  }
-};
-
 const forgetPasswordDB = async (payload: TChangePassword) => {
   const { id } = payload;
 
@@ -310,6 +258,60 @@ const forgetPasswordDB = async (payload: TChangePassword) => {
   // if (!newPasswordBcrypt) {
   //   throw new AppError(400, "Password Not Change here");
   // }
+};
+
+const changePasswordDB = async (token: string, payload: TChangePassword) => {
+  const { email, newPassword } = payload;
+  const decoded = jwt.verify(
+    token as string,
+    process.env.SECRET_ACCESS_TOKEN as string
+  ) as JwtPayload; // Explicitly handle both cases
+
+  const { id } = decoded.data;
+  // validation is exists
+  const user = await UserModel.findById({ _id: id }).select("+password");
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "This User Not Found !");
+  }
+  // validate isExistsUserDeleted
+  const isExistsUserDeleted = user?.isDelete;
+  if (isExistsUserDeleted) {
+    throw new AppError(httpStatus.NOT_FOUND, "This User Already Deleted !");
+  }
+  const isExistsUserStatus = user?.status;
+  if (isExistsUserStatus === USER_STATUS?.block) {
+    throw new AppError(httpStatus.NOT_FOUND, "This User Blocked !");
+  }
+
+  if (user?.email !== email) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Token email and payload email dose't match !!"
+    );
+  }
+
+  // updating user model needPassword change false and password bcrypt
+  const newPasswordBcrypt = await Bcrypt.hash(
+    newPassword,
+    Number(process.env.BCRYPT_NUMBER)
+  );
+  if (!newPasswordBcrypt) {
+    throw new AppError(400, "Password Not Change here");
+  }
+  const result = await UserModel.findByIdAndUpdate(
+    { _id: id },
+    {
+      password: newPasswordBcrypt,
+      passwordChangeAt: new Date(),
+    }
+  );
+
+  if (result) {
+    return null;
+  } else {
+    throw new AppError(400, "Password Not Change here");
+  }
 };
 
 export const authService = {

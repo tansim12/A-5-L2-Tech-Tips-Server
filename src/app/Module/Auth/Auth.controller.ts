@@ -58,25 +58,28 @@ const refreshToken: RequestHandler = async (req, res, next) => {
   }
 };
 
-const changePassword: RequestHandler = async (req, res, next) => {
+
+const forgetPassword: RequestHandler = async (req, res, next) => {
   try {
-    const result = await authService.changePasswordDB(req?.user?.id, req.body);
+    const result = await authService.forgetPasswordDB(req.body);
+    res.send(
+      successResponse(result, httpStatus.OK, "Forget Password Request Done")
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+const changePassword: RequestHandler = async (req, res, next) => {
+  const token = req?.headers?.authorization;
+  try {
+    const result = await authService.changePasswordDB(token as string, req.body);
     res.send(
       successResponse(
         result,
         httpStatus.OK,
         "Password Change Successfully done "
       )
-    );
-  } catch (error) {
-    next(error);
-  }
-};
-const forgetPassword: RequestHandler = async (req, res, next) => {
-  try {
-    const result = await authService.forgetPasswordDB(req.body);
-    res.send(
-      successResponse(result, httpStatus.OK, "Forget Password Request Done")
     );
   } catch (error) {
     next(error);

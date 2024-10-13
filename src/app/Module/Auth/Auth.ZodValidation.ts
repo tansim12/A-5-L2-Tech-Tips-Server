@@ -12,22 +12,15 @@ const signInValidationSchemaZod = z.object({
 
 const changePasswordValidationSchemaZod = z.object({
   body: z.object({
-    oldPassword: z.string({
-      required_error: "Old password is required",
-    }),
+    email: z
+      .string()
+      .email({ message: "Email must be a valid email" })
+      .nonempty({ message: "Email is required" }),
     newPassword: z.string({ required_error: "Password is required" }),
   }),
 });
 const forgetPasswordSchemaZod = z.object({
   body: z.object({
-    // email: z
-    //   .string()
-    //   .email({ message: "Email must be a valid email" })
-    //   .nonempty({ message: "Email is required" }),
-    // oldPassword: z.string({
-    //   required_error: "Old password is required",
-    // }),
-    // newPassword: z.string({ required_error: "Password is required" }),
     id: z.string({ required_error: "Id should be string" }),
   }),
 });
