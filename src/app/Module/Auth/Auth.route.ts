@@ -27,7 +27,7 @@ router.post(
 );
 router.post(
   "/forget-password",
-  validationMiddleWare(authZodValidation.changePasswordValidationSchemaZod),
+  validationMiddleWare(authZodValidation.forgetPasswordSchemaZod),
   authController.forgetPassword
 );
 router.post(

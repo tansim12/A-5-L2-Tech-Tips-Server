@@ -76,11 +76,7 @@ const forgetPassword: RequestHandler = async (req, res, next) => {
   try {
     const result = await authService.forgetPasswordDB(req.body);
     res.send(
-      successResponse(
-        result,
-        httpStatus.OK,
-        "Password Change Successfully done "
-      )
+      successResponse(result, httpStatus.OK, "Forget Password Request Done")
     );
   } catch (error) {
     next(error);

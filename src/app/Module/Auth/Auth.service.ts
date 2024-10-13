@@ -13,6 +13,7 @@ import jwt from "jsonwebtoken";
 import Bcrypt from "bcrypt";
 import UserProfileModel from "../User-Profile/userProfile.model";
 import mongoose from "mongoose";
+import { emailSender } from "../../Utils/emailSender";
 
 const singUpDB = async (payload: Partial<TUser>) => {
   const session = await mongoose.startSession(); // Start a new session for the transaction
@@ -265,11 +266,12 @@ const changePasswordDB = async (id: string, payload: TChangePassword) => {
     throw new AppError(400, "Password Not Change here");
   }
 };
+
 const forgetPasswordDB = async (payload: TChangePassword) => {
-  const { oldPassword, newPassword, email } = payload;
+  const { id } = payload;
 
   // validation is exists
-  const user = await UserModel.findOne({ email: email }).select("+password");
+  const user = await UserModel.findById({ _id: id }).select("+password");
 
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "This User Not Found !");
@@ -283,41 +285,31 @@ const forgetPasswordDB = async (payload: TChangePassword) => {
   if (isExistsUserStatus === USER_STATUS?.block) {
     throw new AppError(httpStatus.NOT_FOUND, "This User Blocked !");
   }
-  // check password is correct
-  const checkPassword = await validateLoginPassword(
-    oldPassword,
-    user?.password
-  );
-  if (!checkPassword) {
-    throw new AppError(
-      400,
-      "Old Password dose not matched... Try again letter 😥"
-    );
-  }
-  // updating user model needPassword change false and password bcrypt
-  let newPasswordBcrypt;
-  if (checkPassword) {
-    newPasswordBcrypt = await Bcrypt.hash(
-      newPassword,
-      Number(process.env.BCRYPT_NUMBER)
-    );
-  }
-  if (!newPasswordBcrypt) {
-    throw new AppError(400, "Password Not Change here");
-  }
-  const result = await UserModel.findByIdAndUpdate(
-    { _id: user?._id },
-    {
-      password: newPasswordBcrypt,
-      passwordChangeAt: new Date(),
-    }
+
+  const jwtPayload = {
+    id: user?._id, // Change 'userId' to 'id'
+    role: user?.role || "user", // Ensure role is always a string, default to 'user'
+  };
+
+  const resetToken = dynamicTokenGenerate(
+    jwtPayload,
+    process.env.SECRET_ACCESS_TOKEN as string,
+    "10m"
   );
 
-  if (result) {
-    return null;
-  } else {
-    throw new AppError(400, "Password Not Change here");
-  }
+  const resetUILink = `${process.env.FRONTEND_URL}/forget-password?id=${user.id}&token=${resetToken} `;
+  await emailSender(user?.email, resetUILink);
+  // updating user model needPassword change false and password bcrypt
+  // let newPasswordBcrypt;
+  // if (checkPassword) {
+  //   newPasswordBcrypt = await Bcrypt.hash(
+  //     newPassword,
+  //     Number(process.env.BCRYPT_NUMBER)
+  //   );
+  // }
+  // if (!newPasswordBcrypt) {
+  //   throw new AppError(400, "Password Not Change here");
+  // }
 };
 
 export const authService = {
