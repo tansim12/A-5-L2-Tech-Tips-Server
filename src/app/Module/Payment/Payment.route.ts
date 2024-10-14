@@ -12,6 +12,11 @@ router.post(
   validationMiddleWare(paymentZodValidation.paymentZodSchema),
   paymentController.payment
 );
+router.get(
+  "/my-payment-info",
+  authMiddleWare(USER_ROLE?.admin, USER_ROLE.user),
+  paymentController.myAllPaymentInfo
+);
 router.post("/callback", paymentController.callback);
 
 export const paymentRoutes = router;

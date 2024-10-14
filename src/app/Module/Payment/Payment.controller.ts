@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import { paymentService } from "./Payment.service";
 import { successResponse } from "../../Re-Useable/CustomResponse";
 import dotenv from "dotenv";
-dotenv.config()
+dotenv.config();
 
 const payment: RequestHandler = async (req, res, next) => {
   try {
@@ -14,7 +14,7 @@ const payment: RequestHandler = async (req, res, next) => {
 };
 const callback: RequestHandler = async (req, res, next) => {
   try {
-    const result = await paymentService.callbackDB(req.body, req?.query); 
+    const result = await paymentService.callbackDB(req.body, req?.query);
     if (result?.success) {
       res.redirect(
         // `${process.env.FRONTEND_URL}payment-success?bookingId=${result?.bookingId}`
@@ -30,7 +30,20 @@ const callback: RequestHandler = async (req, res, next) => {
   }
 };
 
+const myAllPaymentInfo: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await paymentService.myAllPaymentInfoDB(
+      req.user?.id,
+      req?.query
+    );
+    res.send(successResponse(result, 200, "My Payment Info find done"));
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const paymentController = {
   payment,
   callback,
+  myAllPaymentInfo,
 };

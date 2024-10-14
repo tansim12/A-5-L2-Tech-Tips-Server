@@ -10,6 +10,9 @@ import { v7 as uuidv7 } from "uuid";
 import { verifyPayment } from "../../Utils/verifyPayment";
 import PaymentInfoModel from "./payment.model";
 import { startSession } from "mongoose";
+import { TPaymentInfo } from "./payment.interface";
+import QueryBuilder2 from "../../Builder/QueryBuilder2";
+import { paymentInfoSearchTerm } from "./Payment.const";
 
 const paymentDB = async (body: any, userId: string) => {
   const user = await UserModel.findById({ _id: userId }).select(
@@ -147,7 +150,42 @@ const callbackDB = async (body: any, query: any) => {
   }
 };
 
+const myAllPaymentInfoDB = async (
+  userId: string,
+  queryObj: Partial<TPaymentInfo>
+) => {
+  const user = await UserModel.findById({ _id: userId }).select("+password");
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User Not found !");
+  }
+
+  if (user?.isDelete) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User Already Delete !");
+  }
+
+  if (user?.status === USER_STATUS.block) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
+  }
+  const queryPaymentInfo = new QueryBuilder2(
+    PaymentInfoModel.find({ userId }),
+    queryObj
+  )
+    .filter()
+    .fields()
+    .sort()
+    .paginate()
+    .search(paymentInfoSearchTerm);
+  const result = await queryPaymentInfo.modelQuery;
+  const meta = await queryPaymentInfo.countTotal();
+
+  return {
+    result,
+    meta,
+  };
+};
+
 export const paymentService = {
   paymentDB,
   callbackDB,
+  myAllPaymentInfoDB,
 };

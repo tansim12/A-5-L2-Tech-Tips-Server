@@ -1,0 +1,1 @@
+export const paymentInfoSearchTerm = ["payment_type"] 
