@@ -18,7 +18,6 @@ export enum TPostCategory {
   BlockchainTechnology = "BlockchainTechnology",
 }
 
-
 export type TPost = {
   title: string;
   userId?: Types.ObjectId;
@@ -29,4 +28,5 @@ export type TPost = {
   react?: TReact[];
   isDelete?: boolean;
   comments?: Types.ObjectId[];
+  shareCount?: number;
 };

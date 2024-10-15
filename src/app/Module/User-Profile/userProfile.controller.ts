@@ -46,9 +46,26 @@ const findMyProfile: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+const myAnalytics: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await userProfileService.myAnalyticsDB(req?.user?.id);
+    res
+      .status(200)
+      .send(
+        successResponse(
+          result,
+          httpStatus.OK,
+          "Find My Analytics Done"
+        )
+      );
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const userProfileController = {
   updateUserProfile,
   createAndRemoveFollowing,
   findMyProfile,
+  myAnalytics
 };

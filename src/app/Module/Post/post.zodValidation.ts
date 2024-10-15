@@ -23,6 +23,9 @@ const createPostZodSchema = z.object({
     react: z.array(z.string()).optional(), // Optional array of user IDs who reacted
     comments: z.array(z.string()).optional(), // Optional array of comments
     isDelete: z.boolean().optional(),
+    shareCount: z
+      .number({ required_error: "shareCount should be number" })
+      .optional(),
     premium: z.boolean().optional(),
   }),
 });
@@ -47,6 +50,9 @@ const updatePostZodSchema = z.object({
     react: z.array(reactSchema).optional(), // Optional array of user IDs who reacted
     comments: z.array(z.string()).optional(), // Optional array of comments
     isDelete: z.boolean().optional(),
+    shareCount: z
+      .number({ required_error: "shareCount should be number" })
+      .optional(),
     premium: z.boolean().optional(),
   }),
 });

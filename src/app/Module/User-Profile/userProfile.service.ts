@@ -4,6 +4,7 @@ import { UserModel } from "../User/User.model";
 import { TUserProfile } from "./userProfile.interface";
 import { USER_STATUS } from "../User/User.const";
 import UserProfileModel from "./userProfile.model";
+import PostModel from "../Post/post.mode";
 
 const updateUserProfileDB = async (
   payload: Partial<TUserProfile>,
@@ -152,8 +153,54 @@ const findMyProfileDB = async (userId: string) => {
   return userProfile;
 };
 
+const myAnalyticsDB = async (userId: string) => {
+  // Step 1: Check if the user exists and is active
+  const user = await UserModel.findById(userId).select("+password");
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User Not found!");
+  }
+  if (user?.isDelete) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User Already Deleted!");
+  }
+  if (user?.status === USER_STATUS.block) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
+  }
+
+  // Step 2: Fetch analytics for the user's posts
+  const result = await PostModel.aggregate([
+    {
+      // Match posts by user and exclude deleted ones
+      $match: {
+        userId: user._id, // Match posts by the specific user
+        isDelete: { $ne: true },
+      },
+    },
+    {
+      // Group data to get total counts for that user
+      $group: {
+        _id: null,
+        totalReaders: { $sum: 1 }, // Assuming each post represents a reader
+        totalReactions: { $sum: { $size: "$react" } },
+        totalComments: { $sum: { $size: "$comments" } },
+        totalShares: { $sum: "$shareCount" }, // Summing all share counts
+      },
+    },
+  ]);
+
+  // Return the aggregated result or some default values
+  return result.length
+    ? result[0]
+    : {
+        totalReaders: 0,
+        totalReactions: 0,
+        totalComments: 0,
+        totalShares: 0,
+      };
+};
+
 export const userProfileService = {
   updateUserProfileDB,
   createAndRemoveFollowingDB,
   findMyProfileDB,
+  myAnalyticsDB,
 };

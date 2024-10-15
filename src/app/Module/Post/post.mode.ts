@@ -19,6 +19,7 @@ const PostSchema: Schema<TPost> = new Schema(
       required: true,
     },
     isDelete: { type: Boolean, default: false },
+    shareCount: { type: Number, default: 0 },
     premium: { type: Boolean, default: false },
     images: [{ type: String }],
     react: [ReactSchema], // Referencing users who reacted
