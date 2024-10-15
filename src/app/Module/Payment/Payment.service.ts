@@ -167,7 +167,10 @@ const myAllPaymentInfoDB = async (
     throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
   }
   const queryPaymentInfo = new QueryBuilder2(
-    PaymentInfoModel.find({ userId }),
+    PaymentInfoModel.find({ userId }).populate({
+      path:"userId",
+      select:"name _id email"
+    }),
     queryObj
   )
     .filter()
