@@ -232,6 +232,64 @@ const publicFindSinglePostDB = async (postId: string) => {
   return result;
 };
 
+// ! admin get all post  section
+const adminGetsAllPostDB = async (
+  userId: string,
+  queryParams: Partial<TPost>
+) => {
+  const user = await UserModel.findById({ _id: userId }).select("+password");
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User Not found !");
+  }
+
+  if (user?.isDelete) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User Already Delete !");
+  }
+
+  if (user?.status === USER_STATUS.block) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
+  }
+  if (user?.role !== USER_ROLE.admin) {
+    throw new AppError(httpStatus.BAD_REQUEST, "You are not admin");
+  }
+
+  const queryPost = new QueryBuilder2(
+    PostModel.find()
+      .populate({
+        path: "userId", // Populate userId with selected fields
+        select: "name isVerified profilePhoto role",
+      })
+      .populate({
+        path: "comments", // Populate comments with selected fields
+        populate: [
+          {
+            path: "userId", // Further populate the userId inside comments
+            select: "name isVerified profilePhoto",
+          },
+          {
+            path: "replies", // Populate replies within comments
+            populate: {
+              path: "userId", // Populate userId within replies
+              select: "name isVerified profilePhoto",
+            },
+          },
+        ],
+      }),
+    queryParams
+  )
+    .fields()
+    .filter()
+    .paginate()
+    .search(postSearchableFields)
+    .sort();
+
+  const result = await queryPost.modelQuery;
+  const meta = await queryPost.countTotal();
+
+  return { meta, result };
+};
+
 export const postService = {
   createPostDB,
   updatePostDB,
@@ -239,4 +297,5 @@ export const postService = {
   myAllPostDB,
   publicFindSinglePostDB,
   reactSetAndUpdateDB,
+  adminGetsAllPostDB,
 };

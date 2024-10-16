@@ -33,6 +33,11 @@ router.get(
   postController.myAllPost
 );
 router.get("/", postController.publicFindAllPost);
+router.get(
+  "/all-posts",
+  authMiddleWare(USER_ROLE.admin),
+  postController.adminGetsAllPost
+);
 router.get("/:postId", postController.publicFindSinglePost);
 
 export const postRoute = router;

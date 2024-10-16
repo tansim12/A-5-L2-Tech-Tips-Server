@@ -51,7 +51,6 @@ const reactSetAndUpdate: RequestHandler = async (req, res, next) => {
   }
 };
 
-
 // find
 const publicFindAllPost: RequestHandler = async (req, res, next) => {
   try {
@@ -92,6 +91,23 @@ const publicFindSinglePost: RequestHandler = async (req, res, next) => {
   }
 };
 
+// find
+const adminGetsAllPost: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await postService.adminGetsAllPostDB(
+      req?.user?.id,
+      req?.query
+    );
+    res
+      .status(200)
+      .send(
+        successResponse(result, httpStatus.OK, "Post Find Successfully Done")
+      );
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const postController = {
   createPost,
   updatePost,
@@ -99,5 +115,5 @@ export const postController = {
   myAllPost,
   publicFindSinglePost,
   reactSetAndUpdate,
-  
+  adminGetsAllPost,
 };
