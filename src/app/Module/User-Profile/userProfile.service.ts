@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import httpStatus from "http-status";
 import AppError from "../../Error-Handle/AppError";
 import { UserModel } from "../User/User.model";
@@ -220,54 +221,102 @@ const adminAnalyticsDB = async (userId: string) => {
       $facet: {
         totalPosts: [
           { $match: { isDelete: { $ne: true } } },
-          { $count: "total" }
+          { $count: "total" },
         ],
         totalPremiumPosts: [
           { $match: { premium: true, isDelete: { $ne: true } } },
-          { $count: "total" }
+          { $count: "total" },
         ],
         totalDeletedPosts: [
           { $match: { isDelete: true } },
-          { $count: "total" }
+          { $count: "total" },
         ],
-        
-      }
-    }
+        postMetrics: [
+          { $match: { isDelete: { $ne: true } } },
+          {
+            $group: {
+              _id: null,
+              totalReaders: { $sum: 1 }, // Assuming each post represents a reader
+              totalReactions: { $sum: { $size: "$react" } },
+              totalComments: { $sum: { $size: "$comments" } },
+              totalShares: { $sum: "$shareCount" }, // Summing all share counts
+            },
+          },
+        ],
+      },
+    },
   ]);
 
   // Step 3: Fetch premium users count
-  const totalPremiumUsers = await UserModel.countDocuments({ isVerified:true });
+  const totalPremiumUsers = await UserModel.countDocuments({ isVerified: true });
 
-  // Step 4: Fetch total payments and revenue from PaymentInfoModel
+  // Step 4: Fetch total payments and month-wise revenue from PaymentInfoModel
   const paymentStats = await PaymentInfoModel.aggregate([
     {
       $group: {
+        _id: {
+          month: { $month: "$createdAt" }, // Group by month (numeric format)
+        },
+        monthlyRevenue: { $sum: "$amount" }, // Sum of payments for each month
+        totalPayments: { $sum: 1 }, // Count total payments for each month
+      },
+    },
+    {
+      $sort: { "_id.month": 1 }, // Sort by month number (from January to December)
+    },
+    {
+      $group: {
         _id: null,
-        totalPayments: { $sum: 1 },    // Count total payments
-        totalRevenue: { $sum: "$amount" }  // Sum total payment amounts
-      }
-    }
+        monthlyData: {
+          $push: {
+            month: "$_id.month", // Month number (e.g., 1 for January, 2 for February)
+            revenue: "$monthlyRevenue",
+            totalPayments: "$totalPayments",
+          },
+        },
+        totalRevenue: { $sum: "$monthlyRevenue" }, // Sum of all monthly revenues
+        totalPayments: { $sum: "$totalPayments" }, // Total number of payments across all months
+      },
+    },
   ]);
+
+  // Convert numeric month (1-12) to month names (January, February, etc.)
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June", 
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  const formattedMonthlyData = paymentStats[0]?.monthlyData.map((data:any) => ({
+    month: monthNames[data.month - 1], // Convert numeric month to name
+    revenue: data.revenue,
+    totalPayments: data.totalPayments,
+  })) || [];
 
   // Step 5: Format the final result for return
   const totalPosts = postStats[0]?.totalPosts?.[0]?.total || 0;
   const totalPremiumPosts = postStats[0]?.totalPremiumPosts?.[0]?.total || 0;
   const totalDeletedPosts = postStats[0]?.totalDeletedPosts?.[0]?.total || 0;
- 
+  const postMetrics = postStats[0]?.postMetrics?.[0] || {
+    totalReaders: 0,
+    totalReactions: 0,
+    totalComments: 0,
+    totalShares: 0,
+  };
 
-  const totalPayments = paymentStats[0]?.totalPayments || 0;
   const totalRevenue = paymentStats[0]?.totalRevenue || 0;
+  const totalPayments = paymentStats[0]?.totalPayments || 0;
 
   return {
     totalPosts,
     totalPremiumPosts,
     totalDeletedPosts,
+    ...postMetrics,
     totalPremiumUsers,
-    totalPayments,
-    totalRevenue
+    monthlyData: formattedMonthlyData, // Month-wise revenue and payments
+    totalRevenue, // Total revenue across all months
+    totalPayments, // Total number of payments across all months
   };
 };
-
 
 export const userProfileService = {
   updateUserProfileDB,
