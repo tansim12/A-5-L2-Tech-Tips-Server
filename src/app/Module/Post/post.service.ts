@@ -47,8 +47,10 @@ const updatePostDB = async (
   if (!post) {
     throw new AppError(httpStatus.NOT_FOUND, "Post Not found !");
   }
-  if (post?.isDelete) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Post Already Delete !");
+  if (user?.role === USER_ROLE.user) {
+    if (post?.isDelete) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Post Already Delete !");
+    }
   }
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "User Not found !");
