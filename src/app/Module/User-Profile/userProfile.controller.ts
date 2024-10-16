@@ -51,12 +51,18 @@ const myAnalytics: RequestHandler = async (req, res, next) => {
     const result = await userProfileService.myAnalyticsDB(req?.user?.id);
     res
       .status(200)
+      .send(successResponse(result, httpStatus.OK, "Find My Analytics Done"));
+  } catch (error) {
+    next(error);
+  }
+};
+const adminAnalytics: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await userProfileService.adminAnalyticsDB(req?.user?.id);
+    res
+      .status(200)
       .send(
-        successResponse(
-          result,
-          httpStatus.OK,
-          "Find My Analytics Done"
-        )
+        successResponse(result, httpStatus.OK, "Find Admin Analytics Done")
       );
   } catch (error) {
     next(error);
@@ -67,5 +73,6 @@ export const userProfileController = {
   updateUserProfile,
   createAndRemoveFollowing,
   findMyProfile,
-  myAnalytics
+  myAnalytics,
+  adminAnalytics,
 };

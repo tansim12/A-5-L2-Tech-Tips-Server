@@ -29,5 +29,10 @@ router.get(
   authMiddleWare(USER_ROLE.user, USER_ROLE.admin),
   userProfileController.myAnalytics
 );
+router.get(
+  "/admin-analytics",
+  authMiddleWare(USER_ROLE.admin),
+  userProfileController.adminAnalytics
+);
 
 export const userProfileRoute = router;

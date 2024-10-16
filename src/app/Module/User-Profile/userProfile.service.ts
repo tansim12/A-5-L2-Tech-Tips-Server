@@ -2,9 +2,10 @@ import httpStatus from "http-status";
 import AppError from "../../Error-Handle/AppError";
 import { UserModel } from "../User/User.model";
 import { TUserProfile } from "./userProfile.interface";
-import { USER_STATUS } from "../User/User.const";
+import { USER_ROLE, USER_STATUS } from "../User/User.const";
 import UserProfileModel from "./userProfile.model";
 import PostModel from "../Post/post.mode";
+import PaymentInfoModel from "../Payment/payment.model";
 
 const updateUserProfileDB = async (
   payload: Partial<TUserProfile>,
@@ -197,10 +198,81 @@ const myAnalyticsDB = async (userId: string) => {
         totalShares: 0,
       };
 };
+const adminAnalyticsDB = async (userId: string) => {
+  // Step 1: Check if the user exists and is active
+  const user = await UserModel.findById(userId).select("+password");
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User Not found!");
+  }
+  if (user?.isDelete) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User Already Deleted!");
+  }
+  if (user?.status === USER_STATUS.block) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
+  }
+  if (user?.role !== USER_ROLE.admin) {
+    throw new AppError(httpStatus.BAD_REQUEST, "You are not admin !!");
+  }
+
+  // Step 2: Fetch analytics data
+  const postStats = await PostModel.aggregate([
+    {
+      $facet: {
+        totalPosts: [
+          { $match: { isDelete: { $ne: true } } },
+          { $count: "total" }
+        ],
+        totalPremiumPosts: [
+          { $match: { premium: true, isDelete: { $ne: true } } },
+          { $count: "total" }
+        ],
+        totalDeletedPosts: [
+          { $match: { isDelete: true } },
+          { $count: "total" }
+        ],
+        
+      }
+    }
+  ]);
+
+  // Step 3: Fetch premium users count
+  const totalPremiumUsers = await UserModel.countDocuments({ isVerified:true });
+
+  // Step 4: Fetch total payments and revenue from PaymentInfoModel
+  const paymentStats = await PaymentInfoModel.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalPayments: { $sum: 1 },    // Count total payments
+        totalRevenue: { $sum: "$amount" }  // Sum total payment amounts
+      }
+    }
+  ]);
+
+  // Step 5: Format the final result for return
+  const totalPosts = postStats[0]?.totalPosts?.[0]?.total || 0;
+  const totalPremiumPosts = postStats[0]?.totalPremiumPosts?.[0]?.total || 0;
+  const totalDeletedPosts = postStats[0]?.totalDeletedPosts?.[0]?.total || 0;
+ 
+
+  const totalPayments = paymentStats[0]?.totalPayments || 0;
+  const totalRevenue = paymentStats[0]?.totalRevenue || 0;
+
+  return {
+    totalPosts,
+    totalPremiumPosts,
+    totalDeletedPosts,
+    totalPremiumUsers,
+    totalPayments,
+    totalRevenue
+  };
+};
+
 
 export const userProfileService = {
   updateUserProfileDB,
   createAndRemoveFollowingDB,
   findMyProfileDB,
   myAnalyticsDB,
+  adminAnalyticsDB,
 };
