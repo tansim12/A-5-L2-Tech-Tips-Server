@@ -39,5 +39,6 @@ router.get(
   postController.adminGetsAllPost
 );
 router.get("/:postId", postController.publicFindSinglePost);
+router.put("/post-share/:postId", postController.updatePostShare);
 
 export const postRoute = router;

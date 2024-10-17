@@ -107,6 +107,21 @@ const adminGetsAllPost: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+const updatePostShare: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await postService.updatePostShareDB(
+      req?.params?.postId,
+      req?.body
+    );
+    res
+      .status(200)
+      .send(
+        successResponse(result, httpStatus.OK, "Post Share Successfully Done")
+      );
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const postController = {
   createPost,
@@ -116,4 +131,5 @@ export const postController = {
   publicFindSinglePost,
   reactSetAndUpdate,
   adminGetsAllPost,
+  updatePostShare,
 };

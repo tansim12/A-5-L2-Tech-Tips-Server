@@ -6,7 +6,9 @@ import { USER_ROLE, USER_STATUS } from "../User/User.const";
 import PostModel from "./post.mode";
 import QueryBuilder2 from "../../Builder/QueryBuilder2";
 import { postSearchableFields } from "./post.const";
-
+interface TUpdateShareCount {
+  isShare: boolean;
+}
 const createPostDB = async (payload: Partial<TPost>, userId: string) => {
   const user = await UserModel.findById({ _id: userId }).select("+password");
 
@@ -292,6 +294,42 @@ const adminGetsAllPostDB = async (
   return { meta, result };
 };
 
+const updatePostShareDB = async (
+  postId: string,
+  payload: TUpdateShareCount
+) => {
+  if (Object.keys(payload).length !== 1 || !("isShare" in payload)) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Invalid payload: Only isShare property is allowed"
+    );
+  }
+
+  const post = await PostModel.findById({ _id: postId }).select(
+    "_id shareCount isDelete"
+  );
+  if (post?.isDelete) {
+    throw new AppError(httpStatus.BAD_REQUEST, "This Post Already Delete !!");
+  }
+  if (!post) {
+    throw new AppError(httpStatus.NOT_FOUND, "No Found Data ");
+  }
+
+  const result = await PostModel.findByIdAndUpdate(
+    { _id: postId },
+    {
+      shareCount: (post?.shareCount as number) + 1,
+    },
+    { new: true, upsert: true }
+  ).select("_id shareCount");
+
+  if (!result) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Share Count Update Failed");
+  }
+
+  return result;
+};
+
 export const postService = {
   createPostDB,
   updatePostDB,
@@ -300,4 +338,5 @@ export const postService = {
   publicFindSinglePostDB,
   reactSetAndUpdateDB,
   adminGetsAllPostDB,
+  updatePostShareDB,
 };
