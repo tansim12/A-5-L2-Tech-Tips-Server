@@ -41,9 +41,21 @@ const myAllPaymentInfo: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+const allPaymentInfo: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await paymentService.allPaymentInfoDB(
+      req.user?.id,
+      req?.query
+    );
+    res.send(successResponse(result, 200, "My Payment Info find done"));
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const paymentController = {
   payment,
   callback,
   myAllPaymentInfo,
+  allPaymentInfo,
 };

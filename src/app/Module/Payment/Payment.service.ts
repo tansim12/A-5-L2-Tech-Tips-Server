@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import { UserModel } from "../User/User.model";
 import AppError from "../../Error-Handle/AppError";
 import httpStatus from "http-status";
-import { USER_STATUS } from "../User/User.const";
+import { USER_ROLE, USER_STATUS } from "../User/User.const";
 dotenv.config();
 import { v7 as uuidv7 } from "uuid";
 import { verifyPayment } from "../../Utils/verifyPayment";
@@ -168,8 +168,47 @@ const myAllPaymentInfoDB = async (
   }
   const queryPaymentInfo = new QueryBuilder2(
     PaymentInfoModel.find({ userId }).populate({
-      path:"userId",
-      select:"name _id email"
+      path: "userId",
+      select: "name _id email",
+    }),
+    queryObj
+  )
+    .filter()
+    .fields()
+    .sort()
+    .paginate()
+    .search(paymentInfoSearchTerm);
+  const result = await queryPaymentInfo.modelQuery;
+  const meta = await queryPaymentInfo.countTotal();
+
+  return {
+    result,
+    meta,
+  };
+};
+const allPaymentInfoDB = async (
+  userId: string,
+  queryObj: Partial<TPaymentInfo>
+) => {
+  const user = await UserModel.findById({ _id: userId }).select("+password");
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User Not found !");
+  }
+
+  if (user?.isDelete) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User Already Delete !");
+  }
+
+  if (user?.status === USER_STATUS.block) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
+  }
+  if (user?.role !== USER_ROLE.admin) {
+    throw new AppError(httpStatus.BAD_REQUEST, "You are not admin !!");
+  }
+  const queryPaymentInfo = new QueryBuilder2(
+    PaymentInfoModel.find().populate({
+      path: "userId",
+      select: "name _id email",
     }),
     queryObj
   )
@@ -191,4 +230,5 @@ export const paymentService = {
   paymentDB,
   callbackDB,
   myAllPaymentInfoDB,
+  allPaymentInfoDB,
 };

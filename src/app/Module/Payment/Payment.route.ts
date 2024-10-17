@@ -17,6 +17,11 @@ router.get(
   authMiddleWare(USER_ROLE?.admin, USER_ROLE.user),
   paymentController.myAllPaymentInfo
 );
+router.get(
+  "/all-payment-info",
+  authMiddleWare(USER_ROLE?.admin),
+  paymentController.allPaymentInfo
+);
 router.post("/callback", paymentController.callback);
 
 export const paymentRoutes = router;
