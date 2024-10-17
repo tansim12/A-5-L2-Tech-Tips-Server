@@ -22,6 +22,11 @@ router.get(
   authMiddleWare(USER_ROLE?.admin),
   paymentController.allPaymentInfo
 );
+router.put(
+  "/payment-update/:paymentId",
+  authMiddleWare(USER_ROLE?.admin),
+  paymentController.updatePaymentInfoIsDecline
+);
 router.post("/callback", paymentController.callback);
 
 export const paymentRoutes = router;

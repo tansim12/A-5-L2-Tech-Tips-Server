@@ -52,10 +52,23 @@ const allPaymentInfo: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+const updatePaymentInfoIsDecline: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await paymentService.updatePaymentInfoIsDeclineDB(
+      req.user?.id,
+      req?.params?.paymentId,
+      req?.body
+    );
+    res.send(successResponse(result, 200, "Payment Update Successfully done"));
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const paymentController = {
   payment,
   callback,
   myAllPaymentInfo,
   allPaymentInfo,
+  updatePaymentInfoIsDecline,
 };

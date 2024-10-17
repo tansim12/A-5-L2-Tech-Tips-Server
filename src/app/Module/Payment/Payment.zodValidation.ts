@@ -7,7 +7,15 @@ const paymentZodSchema = z.object({
     }),
   }),
 });
+const updatePaymentZodSchema = z.object({
+  body: z.object({
+    isDecline: z
+      .boolean({ required_error: "Decline should be boolean" })
+      .optional(),
+  }),
+});
 
 export const paymentZodValidation = {
   paymentZodSchema,
+  updatePaymentZodSchema,
 };

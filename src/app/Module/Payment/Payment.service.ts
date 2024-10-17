@@ -9,10 +9,15 @@ dotenv.config();
 import { v7 as uuidv7 } from "uuid";
 import { verifyPayment } from "../../Utils/verifyPayment";
 import PaymentInfoModel from "./payment.model";
-import { startSession } from "mongoose";
+import mongoose, { startSession } from "mongoose";
 import { TPaymentInfo } from "./payment.interface";
 import QueryBuilder2 from "../../Builder/QueryBuilder2";
 import { paymentInfoSearchTerm } from "./Payment.const";
+
+interface TUpdatePaymentPayload {
+  isDecline?: boolean;
+  isVerified?: boolean;
+}
 
 const paymentDB = async (body: any, userId: string) => {
   const user = await UserModel.findById({ _id: userId }).select(
@@ -208,7 +213,7 @@ const allPaymentInfoDB = async (
   const queryPaymentInfo = new QueryBuilder2(
     PaymentInfoModel.find().populate({
       path: "userId",
-      select: "name _id email",
+      select: "name _id email profilePhoto",
     }),
     queryObj
   )
@@ -226,9 +231,88 @@ const allPaymentInfoDB = async (
   };
 };
 
+const updatePaymentInfoIsDeclineDB = async (
+  userId: string,
+  paymentId: string,
+  payload: TUpdatePaymentPayload
+) => {
+  const session = await mongoose.startSession();
+
+  try {
+    // Start the transaction
+    session.startTransaction();
+
+    const user = await UserModel.findById({ _id: userId })
+      .select("+password")
+      .session(session); // Include session in the query
+
+    const payment = await PaymentInfoModel.findById({ _id: paymentId })
+      .select("isDecline _id")
+      .session(session); // Include session in the query
+
+    if (!payment?._id) {
+      throw new AppError(
+        httpStatus.NOT_FOUND,
+        "This Payment Details Not Found"
+      );
+    }
+    if (!user) {
+      throw new AppError(httpStatus.NOT_FOUND, "User Not found !");
+    }
+
+    if (user?.isDelete) {
+      throw new AppError(httpStatus.BAD_REQUEST, "User Already Delete !");
+    }
+
+    if (user?.status === USER_STATUS.block) {
+      throw new AppError(httpStatus.BAD_REQUEST, "User Already Blocked!");
+    }
+
+    if (user?.role !== USER_ROLE.admin) {
+      throw new AppError(httpStatus.BAD_REQUEST, "You are not admin !!");
+    }
+
+    const paymentResult = await PaymentInfoModel.findByIdAndUpdate(
+      { _id: paymentId },
+      { isDecline: payload?.isDecline },
+      { new: true, upsert: true, session } // Include session
+    );
+    if (!paymentResult) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "Payment Result Update something went wrong"
+      );
+    }
+
+    const updateUserResult = await UserModel.findByIdAndUpdate(
+      { _id: userId },
+      { isVerified: payload?.isVerified },
+      { new: true, upsert: true, session } // Include session
+    );
+    if (!updateUserResult) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "Payment updateUserResult something went wrong"
+      );
+    }
+
+    // Commit the transaction if everything is successful
+    await session.commitTransaction();
+
+    return updateUserResult;
+  } catch (error) {
+    // If any error occurs, abort the transaction and rollback
+    await session.abortTransaction();
+    throw new AppError(httpStatus.BAD_REQUEST, "Payment Update Failed");
+  } finally {
+    // End the session
+    session.endSession();
+  }
+};
 export const paymentService = {
   paymentDB,
   callbackDB,
   myAllPaymentInfoDB,
   allPaymentInfoDB,
+  updatePaymentInfoIsDeclineDB,
 };

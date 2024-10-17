@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 
 export type TPaymentInfo = {
   userId: Types.ObjectId;
+  isDecline: boolean;
   mer_txnid: string;
   cus_email: string;
   cus_phone: string;
