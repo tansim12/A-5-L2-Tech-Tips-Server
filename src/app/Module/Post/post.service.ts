@@ -221,11 +221,29 @@ const publicFindAllPostDB = async (queryParams: Partial<TPost>) => {
   return { meta, result };
 };
 
+
+// ! public current is auth validation its access by user and admin
 const publicFindSinglePostDB = async (postId: string) => {
   const result = await PostModel.findById({ _id: postId }).populate({
-    path: "userId",
+    path: "userId", // Populate userId with selected fields
     select: "name isVerified profilePhoto role",
-  });
+  })
+  .populate({
+    path: "comments", // Populate comments with selected fields
+    populate: [
+      {
+        path: "userId", // Further populate the userId inside comments
+        select: "name isVerified profilePhoto",
+      },
+      {
+        path: "replies", // Populate replies within comments
+        populate: {
+          path: "userId", // Populate userId within replies
+          select: "name isVerified profilePhoto",
+        },
+      },
+    ],
+  })
 
   if (!result?._id) {
     throw new AppError(httpStatus.NOT_FOUND, "Data Not Found");

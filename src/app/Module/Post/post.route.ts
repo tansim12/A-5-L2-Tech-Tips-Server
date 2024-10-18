@@ -38,7 +38,11 @@ router.get(
   authMiddleWare(USER_ROLE.admin),
   postController.adminGetsAllPost
 );
-router.get("/:postId", postController.publicFindSinglePost);
+router.get(
+  "/:postId",
+  authMiddleWare(USER_ROLE.user, USER_ROLE.admin),
+  postController.publicFindSinglePost
+);
 router.put("/post-share/:postId", postController.updatePostShare);
 
 export const postRoute = router;
