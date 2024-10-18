@@ -247,7 +247,7 @@ const updatePaymentInfoIsDeclineDB = async (
       .session(session); // Include session in the query
 
     const payment = await PaymentInfoModel.findById({ _id: paymentId })
-      .select("isDecline _id")
+      .select("isDecline _id userId")
       .session(session); // Include session in the query
 
     if (!payment?._id) {
@@ -271,7 +271,6 @@ const updatePaymentInfoIsDeclineDB = async (
     if (user?.role !== USER_ROLE.admin) {
       throw new AppError(httpStatus.BAD_REQUEST, "You are not admin !!");
     }
-
     const paymentResult = await PaymentInfoModel.findByIdAndUpdate(
       { _id: paymentId },
       { isDecline: payload?.isDecline },
@@ -285,7 +284,7 @@ const updatePaymentInfoIsDeclineDB = async (
     }
 
     const updateUserResult = await UserModel.findByIdAndUpdate(
-      { _id: userId },
+      { _id: payment?.userId },
       { isVerified: payload?.isVerified },
       { new: true, upsert: true, session } // Include session
     );
