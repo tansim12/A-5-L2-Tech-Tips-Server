@@ -7,7 +7,7 @@ const normalMiddleware = (app: Application) => {
   app.use(
     cors({
       origin: [
-        "https://mellow-crostata-06977e.netlify.app",
+        "https://a-6-tech-tips-client-ggc5.vercel.app",
         "http://localhost:5173",
         "http://localhost:5174",
       ],
