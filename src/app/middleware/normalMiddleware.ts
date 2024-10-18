@@ -8,8 +8,9 @@ const normalMiddleware = (app: Application) => {
     cors({
       origin: [
         "https://a-6-tech-tips-client-ggc5.vercel.app",
-        "http://localhost:5173",
-        "http://localhost:5174",
+        "http://localhost:3000",
+        "http://localhost:3001",
+       
       ],
       credentials: true,
     })
