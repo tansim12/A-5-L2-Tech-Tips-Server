@@ -6,7 +6,7 @@ This is the backend for a Car Rental Reservation System. It handles CRUD operati
 
 ## 🔗 Live URL
 
-[Car Rental Reservation System](https://assignment-51-l2.vercel.app)
+[Tech Tips & Tricks Hub](https://a-5-l2-tech-tips-server.vercel.app/)
 
 
 ## Technologies Used
@@ -18,21 +18,23 @@ This is the backend for a Car Rental Reservation System. It handles CRUD operati
 - JWT
 - Zod
 - Bcrypt
+- Nodemailer
 
 
 ## Features
 - User Authentication and Authorization (JWT-based)
-- CRUD Operations for Cars
-- Booking System for Renting Cars
+- CRUD Operations for Create Post and other site comment and reaction system
+- Gets premium version. Access premium post and create premium post
+- Using forget password by nodemailer.
 - Middleware for Error Handling
 - Input Validation using Zod
 - Transaction and Rollback (if necessary)
 
 - **Order Management**
-  - Create a new order
-  - Retrieve all orders
+  - Create a new post
+  - Retrieve all Post
   - Retrieve orders by user email
-  - Update inventory when an order is created
+  - Update inventory when a post is created
 
 
  **Clone the repository**
@@ -40,7 +42,7 @@ This is the backend for a Car Rental Reservation System. It handles CRUD operati
    ```sh
    git clone 
 
-   cd Car-Rental-Reservation-System-Backend
+   cd A-5-L2-Tech-Tips-Server
   
 ```
 📦 Install Dependencies
@@ -56,25 +58,22 @@ $ npm install
 
 ```bash
 
-NODE_ENV="development"
-DB_NAME= your DB name
-PORT=5000
-USER= your user name
-PASS= your password
-BCRYPT_NUMBER= number
-SECRET_ACCESS_TOKEN= your access token
-SECRET_REFRESH_TOKEN= your refresh token
-SECRET_ACCESS_TOKEN_TIME=10d
-SECRET_REFRESH_TOKEN_TIME=365d
-CLOUD_NAME=dgm9w4vwh
-CLOUD_API_KEY=625361979527927
-CLOUD_SEC=TMdoo62lEFDSwpL9GvBQ1XVUnIo
-AAMAR_PAY_SEARCH_TNX_BASE_URL= 
-AAMAR_PAY_STORE_ID=
-AAMAR_PAY_SIGNATURE_KEY= 
-AAMAR_PAY_HIT_API= 
+NODE_ENV=
 BASE_URL=
 FRONTEND_URL=
+DB_NAME=
+DATABASE_URL=
+PORT=5000
+BCRYPT_NUMBER=12
+SECRET_ACCESS_TOKEN=
+SECRET_REFRESH_TOKEN=
+SECRET_ACCESS_TOKEN_TIME=10d
+SECRET_REFRESH_TOKEN_TIME=365d
+AAMAR_PAY_SEARCH_TNX_BASE_URL=
+AAMAR_PAY_STORE_ID=aamarpaytest,
+AAMAR_PAY_SIGNATURE_KEY= 
+AAMAR_PAY_HIT_API= https://sandbox.aamarpay.com/jsonpost.php
+EMAIL_APP_PASSWORD=
 
 
 ```
